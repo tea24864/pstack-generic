@@ -240,6 +240,142 @@ class Specialization(unittest.TestCase):
         text = (self.base / 'output/skills/pstack-demo/SKILL.md').read_text()
         self.assertLess(text.index('  test-native:'), text.index('allowed-tools:'))
 
+    def test_uninstall_preview_then_remove_and_reinstall(self):
+        self.assertTrue(hasattr(self.module, 'uninstall'), 'Receipt-based uninstall is missing')
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        unrelated = target / 'unrelated.txt'
+        unrelated.write_text('keep')
+        preview = self.module.uninstall(target)
+        self.assertTrue(preview['dry_run'])
+        self.assertTrue((target / 'pstack-demo/SKILL.md').exists())
+        result = self.module.uninstall(target, confirm=True)
+        self.assertEqual(result['removed_skills'], 1)
+        self.assertFalse((target / '.pstack-runtime.json').exists())
+        self.assertFalse((target / 'pstack-demo').exists())
+        self.assertEqual(unrelated.read_text(), 'keep')
+        self.assertEqual(self.module.install(output, target)['installed_skills'], 1)
+
+    def test_uninstall_cli_requires_confirmation_and_allows_repeat_cycles(self):
+        import subprocess
+        import sys
+        output, home = self.base / 'output', self.base / 'Hermes home with spaces'
+        self.mapping['id'] = 'hermes'
+        self.adapter.write_text(json.dumps(self.mapping))
+        self.module.build(self.core, self.adapter, output)
+        for cycle in range(2):
+            self.module.install(output, home / 'skills')
+            for flags in ([], ['--yes']):
+                process = subprocess.run([sys.executable, '-I', str(ROOT / 'tools/setup.py'), 'uninstall', '--home', str(home), *flags], capture_output=True, text=True)
+                self.assertEqual(process.returncode, 0, process.stderr)
+                result = json.loads(process.stdout)
+                self.assertEqual(result['dry_run'], not flags)
+                self.assertEqual((home / 'skills/pstack-demo').exists(), not flags)
+
+    def test_uninstall_preserves_changes_and_added_files(self):
+        output = self.base / 'output'
+        self.module.build(self.core, self.adapter, output)
+        for change in ('edit', 'added', 'missing', 'symlink', 'cache'):
+            with self.subTest(change=change):
+                target = self.base / change
+                self.module.install(output, target)
+                skill = target / 'pstack-demo'
+                if change == 'edit':
+                    (skill / 'SKILL.md').write_text('user edit')
+                elif change == 'added':
+                    (skill / 'user.txt').write_text('user content')
+                elif change == 'missing':
+                    (skill / 'SKILL.md').unlink()
+                elif change == 'cache':
+                    (skill / '__pycache__').mkdir()
+                    (skill / '__pycache__/local.pyc').write_bytes(b'user bytes')
+                else:
+                    (skill / 'linked').symlink_to(self.skill / 'SKILL.md')
+                with self.assertRaises(ValueError):
+                    self.module.uninstall(target, confirm=True)
+                self.assertTrue(skill.is_dir())
+                self.assertTrue((target / '.pstack-runtime.json').exists())
+
+    def test_uninstall_refuses_legacy_and_path_traversal_receipts(self):
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        record = target / '.pstack-runtime.json'
+        receipt = json.loads(record.read_text())
+        for malformed in (dict(receipt, files=[]), dict(receipt, skills=['../outside']),
+                          dict(receipt, files=[{'path': 'skills/pstack-demo/../../outside', 'sha256': '0'*64}])):
+            record.write_text(json.dumps(malformed))
+            with self.assertRaises(ValueError):
+                self.module.uninstall(target, confirm=True)
+            self.assertTrue((target / 'pstack-demo/SKILL.md').exists())
+
+    def test_uninstall_refuses_added_empty_directory(self):
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        (target / 'pstack-demo/user-work').mkdir()
+        with self.assertRaisesRegex(ValueError, 'directory'):
+            self.module.uninstall(target, confirm=True)
+        self.assertTrue((target / 'pstack-demo/user-work').is_dir())
+
+    def test_uninstall_staging_failure_restores_installation(self):
+        from unittest.mock import patch
+        self.assertTrue(hasattr(self.module, 'uninstall'))
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        rename = Path.rename
+        def fail_record(path, destination):
+            if path.name == '.pstack-runtime.json':
+                raise OSError('simulated staging failure')
+            return rename(path, destination)
+        with patch.object(Path, 'rename', fail_record):
+            with self.assertRaisesRegex(OSError, 'simulated staging failure'):
+                self.module.uninstall(target, confirm=True)
+        self.assertTrue((target / 'pstack-demo/SKILL.md').exists())
+        self.assertTrue((target / '.pstack-runtime.json').exists())
+        self.assertEqual(list(target.glob('.pstack-uninstall-*')), [])
+
+    def test_uninstall_refuses_linked_receipt(self):
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        record = target / '.pstack-runtime.json'
+        saved = self.base / 'saved-receipt.json'
+        record.rename(saved)
+        record.symlink_to(saved)
+        with self.assertRaisesRegex(ValueError, 'receipt'):
+            self.module.uninstall(target, confirm=True)
+        self.assertTrue((target / 'pstack-demo/SKILL.md').exists())
+        self.assertTrue(saved.exists())
+
+    def test_uninstall_refuses_unowned_name_in_receipt(self):
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        (target / 'pstack-user').mkdir()
+        record = target / '.pstack-runtime.json'
+        receipt = json.loads(record.read_text())
+        receipt['skills'].append('pstack-user')
+        record.write_text(json.dumps(receipt))
+        with self.assertRaisesRegex(ValueError, 'entrypoint'):
+            self.module.uninstall(target, confirm=True)
+        self.assertTrue((target / 'pstack-user').is_dir())
+
+    def test_uninstall_cleanup_failure_reports_remaining_staging(self):
+        from unittest.mock import patch
+        output, target = self.base / 'output', self.base / 'target'
+        self.module.build(self.core, self.adapter, output)
+        self.module.install(output, target)
+        with patch.object(self.module.shutil, 'rmtree', side_effect=OSError('simulated cleanup failure')):
+            with self.assertRaisesRegex(OSError, 'cleanup incomplete'):
+                self.module.uninstall(target, confirm=True)
+        staging = list(target.glob('.pstack-uninstall-*'))
+        self.assertEqual(len(staging), 1)
+        self.assertTrue((staging[0] / 'pstack-demo/SKILL.md').exists())
+        self.assertTrue((staging[0] / '.pstack-runtime.json').exists())
+
     def test_build_specializes_only_relevant_instructions(self):
         result = self.module.build(self.core, self.adapter, self.base / 'output')
         text = (self.base / 'output/skills/pstack-demo/SKILL.md').read_text()

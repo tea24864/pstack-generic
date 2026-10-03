@@ -16,7 +16,7 @@
   ],
   "requires_acknowledgement": false,
   "adapter_sha256": "b8990888e0f25a89697f58c3a8cfc7fd748456b9ab34031f7fd19c576f7aedb1",
-  "core_sha256": "83368b6924ed8aa51816ba7cf13e93b84b96c225a3524e23c23cfb0aa024c86e",
+  "core_sha256": "bcb5ac574044c2985d10336bd27d8b3509139a95dd723309eab6bd66704439e0",
   "skills": [
     "pstack-architect",
     "pstack-arena",
@@ -678,7 +678,7 @@
     },
     {
       "path": "pstack-setup-pstack/SKILL.md",
-      "sha256": "46ac326160ee41c629a5ff723b8449b57f362b7f5dfaf5ef00c3c799bc7d0f43"
+      "sha256": "c78f83a3218ec7c146b4b8d7573f0bded1d9e44f8dbbde285a660b73279b3da1"
     },
     {
       "path": "pstack-setup-pstack/references/license.md",
@@ -1575,8 +1575,8 @@
     },
     {
       "path": "skills/pstack-setup-pstack/SKILL.md",
-      "sha256": "9d02b5b55c43b04896e2fc3ffb54a9ca7d3f69cd299371f95938a1844e518547",
-      "bytes": 7438
+      "sha256": "dfff94969d7dc8e485fa9c1e05e522345a2600dfbe92d9610f5246b2292b677e",
+      "bytes": 8915
     },
     {
       "path": "skills/pstack-setup-pstack/references/license.md",

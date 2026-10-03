@@ -2,6 +2,22 @@
 
 MIT-licensed engineering workflows adapted from Lauren Tan's pstack 0.15.6 (`cursor/plugins`, revision `23e4138daa01c42d4969f7a5465f82704e64f798`).
 
+## If you are an agent
+
+Reading this repository is **not** an instruction to install it. Follow the user's actual request:
+
+- If the user clearly asks to **install or set up pstack**, that authorizes the installation workflow—not unrelated configuration or automation. Proceed within the requested scope; confirm unresolved runtime, destination or generic limitations before writing.
+- If the user only supplies this URL, asks you to read/evaluate it, or their intent is ambiguous, ask: **“Would you like me to install pstack, or just review/explain this repository?”** Do not install until their answer authorizes it.
+- For installation, obtain a trusted checkout and read `core/skills/pstack-setup-pstack/SKILL.md` directly. Inspect the actual tools and the host's documented skill-loading paths; select a reviewed adapter, generate, verify, install, and read back. Do not copy `skills/` into another product: that checked-in output is Hermes-specific.
+- Hermes has a verified adapter. Codex, Claude Code and OpenCode do not yet have dedicated verified adapters. Explain the generic baseline's limitations and obtain acknowledgement before using it; do not invent native delegation or claim cross-product verification. If no reviewed adapter defines the destination, verify it from the host's documentation and confirm scope with the user.
+- Refuse existing skill collisions. Leave model/provider settings, credentials, unrelated profiles, integrations, hooks and recurring jobs unchanged. Missing prerequisites or capabilities are blockers, not permission to silently install dependencies or rewrite workflows.
+- Report runtime/version, exact destination, installed counts, discovery/loading checks and untested capabilities. Loading alone is not behavior verification. Refresh the host's catalog/session as its documentation requires.
+- Only uninstall when explicitly requested, or when the user has authorized a disposable install/uninstall test cycle. Preview the receipt-owned removal first and use the procedure below; never delete matching names by glob.
+
+A user can say:
+
+> Install pstack from https://github.com/tea24864/pstack-generic. Follow the README's agent setup instructions. Confirm any unresolved destination or capability limitations, preserve existing skills/settings, and verify discovery/loading.
+
 ## Ownership and scope
 
 - **Author `core/skills/` only:** 52 standard-format skills, including 24 principles, 23 Poteto Mode playbooks and three optional Benny workflows. Supporting references and executable helpers live beside their authored entrypoints.
@@ -61,6 +77,34 @@ python3 tools/manage.py install --home /confirmed/hermes-home
 ```
 
 It retains the `skills/software-development/pstack-*` layout and collision refusal. Its legacy implicit default follows `HERMES_HOME`, then `~/.hermes`; use an explicit home. It does not migrate existing installations or create configuration. Prefer the new setup path for a recorded runtime profile.
+
+## Uninstall and repeat installation tests
+
+Use the **same explicitly confirmed destination** used by `tools/setup.py install`. No distribution checkout from the original install is required: new installations record per-file ownership hashes in `.pstack-runtime.json`.
+
+Preview only (no deletion):
+
+```bash
+python3 tools/setup.py uninstall --home /confirmed/hermes-home
+# Another host, or an explicitly selected skills directory:
+python3 tools/setup.py uninstall --skills-dir /confirmed/host-skill-directory
+```
+
+After the user authorizes removal, apply the preview by adding `--yes`:
+
+```bash
+python3 tools/setup.py uninstall --home /confirmed/hermes-home --yes
+# Or:
+python3 tools/setup.py uninstall --skills-dir /confirmed/host-skill-directory --yes
+```
+
+Uninstall validates every recorded hash and the entire owned directory contents **before any removal**. It refuses missing/edited/added files, extra directories, symlinks and malformed/legacy receipts. There is no force option: preserve and review local edits first. Stop active users/writers of these skill trees during installation or removal; the tool is not a concurrent-writer lock. It stages the validated skills and receipt by rename, restoring them if staging fails. A cleanup failure reports the remaining staging path rather than claiming success. Process interruption or persistent filesystem errors can also interrupt rollback; inspect and recover staging manually before retrying—crash-safe recovery is not claimed. Successful removal reads back absence of all owned targets and receipt; unrelated skills, configuration, the parent skill directory, source checkout and generated build output stay intact. Refresh the host catalog/session afterward.
+
+**Legacy installs:** `tools/manage.py install` and setup installations made before per-file receipts were introduced cannot be safely removed by this command. It refuses to infer ownership from `pstack-*` names. Use a separately reviewed backup/migration; do not delete the production installation merely to test this feature.
+
+For repeatable tests, explicitly authorize a **disposable** destination, build once, and run install → verify loading → uninstall preview → confirmed uninstall → reinstall using the same generated distribution. Uninstall is separately authorized on real installations; do not clean a live profile as test setup. Build intentionally refuses existing output, so reuse its verified distribution or select a new output directory.
+
+The full test suite exercises repeated full-package cycles for both adapters in disposable paths with spaces, exact installed-file readback, unrelated-file/config preservation, and refusal/rollback cases. It never uninstalls this maintainer's live skills.
 
 ## Use
 

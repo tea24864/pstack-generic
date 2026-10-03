@@ -1382,8 +1382,8 @@
       "disposition": "adapted",
       "reason": "Replaced Cursor model/effort rules with only confirmed pstack panel-size/strategy keys, inherited reasoning and approval/readback gates.",
       "group": "utilities",
-      "target_sha256": "46ac326160ee41c629a5ff723b8449b57f362b7f5dfaf5ef00c3c799bc7d0f43",
-      "target_bytes": 7001
+      "target_sha256": "c78f83a3218ec7c146b4b8d7573f0bded1d9e44f8dbbde285a660b73279b3da1",
+      "target_bytes": 8478
     },
     {
       "source": "skills/show-me-your-work/SKILL.md",

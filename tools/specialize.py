@@ -229,7 +229,7 @@ def install(distribution, skills_dir, *, acknowledge_limits=False):
         with record.open('x') as stream:
             record_owned = True
             json.dump({k: manifest[k] for k in ('schema_version', 'runtime', 'runtime_version', 'capabilities', 'limits',
-                                               'adapter_sha256', 'core_sha256', 'skills')}, stream, indent=2)
+                                               'adapter_sha256', 'core_sha256', 'skills', 'files')}, stream, indent=2)
             stream.write('\n')
         if json.loads(record.read_text())['core_sha256'] != manifest['core_sha256']:
             raise ValueError('Installed runtime record readback mismatch')
@@ -242,6 +242,78 @@ def install(distribution, skills_dir, *, acknowledge_limits=False):
     return {'runtime': manifest['runtime'], 'installed_skills': len(names),
             'installed_files': len(manifest['files']), 'skills_dir': str(skills_dir),
             'limits': manifest['limits']}
+
+
+def uninstall(skills_dir, *, confirm=False):
+    """Remove only a complete, unchanged installation recorded by this setup tool."""
+    skills_dir = Path(skills_dir).expanduser().resolve()
+    record = skills_dir / '.pstack-runtime.json'
+    if record.is_symlink() or not record.is_file():
+        raise ValueError('Missing or linked uninstall receipt; no removal authorized')
+    receipt = json.loads(record.read_text())
+    names = receipt.get('skills')
+    files = receipt.get('files')
+    if receipt.get('schema_version') != 1 or not isinstance(names, list) or not names or not isinstance(files, list) or not files:
+        raise ValueError('Missing uninstall ownership hashes; legacy installs require a reviewed migration')
+    if len(set(names)) != len(names) or any(not isinstance(n, str) or not NAME.fullmatch(n) or not n.startswith('pstack-') or len(n) > 64 for n in names):
+        raise ValueError('Invalid uninstall skill names')
+    expected = {}
+    for item in files:
+        path = item['path']
+        rel = Path(path)
+        if rel.as_posix() != path or rel.is_absolute() or '..' in rel.parts or len(rel.parts) < 3 or rel.parts[0] != 'skills' or rel.parts[1] not in names:
+            raise ValueError('Invalid uninstall artifact path')
+        sha = item['sha256']
+        if path in expected or not isinstance(sha, str) or not re.fullmatch(r'[0-9a-f]{64}', sha):
+            raise ValueError('Invalid uninstall artifact hash/duplicate')
+        expected[path] = sha
+    if any('skills/' + name + '/SKILL.md' not in expected for name in names):
+        raise ValueError('Missing uninstall entrypoint ownership hash')
+    expected_dirs = {Path(path).parent for path in expected}
+    expected_dirs = {parent.as_posix() for path in expected_dirs for parent in (path, *path.parents)}
+    actual = {}
+    for name in names:
+        target = skills_dir / name
+        if target.is_symlink() or not target.is_dir():
+            raise ValueError('Missing or linked installed skill: ' + name)
+        for path in target.rglob('*'):
+            if path.is_symlink():
+                raise ValueError('Linked installed artifact: ' + str(path))
+            if path.is_file():
+                actual[('skills' / path.relative_to(skills_dir)).as_posix()] = digest(path.read_bytes())
+            elif path.is_dir():
+                if ('skills' / path.relative_to(skills_dir)).as_posix() not in expected_dirs:
+                    raise ValueError('Unrecorded installed directory: ' + str(path))
+            else:
+                raise ValueError('Unsupported installed artifact: ' + str(path))
+    if actual != expected:
+        raise ValueError('Installed files changed, missing or added; preserve/review local edits before uninstall')
+    result = {'runtime': receipt['runtime'], 'skills_dir': str(skills_dir), 'dry_run': not confirm,
+              'skills': sorted(names), 'files': len(expected)}
+    if not confirm:
+        return result
+    import tempfile
+    staging = Path(tempfile.mkdtemp(prefix='.pstack-uninstall-', dir=skills_dir))
+    moved = []
+    try:
+        for source in [*(skills_dir / name for name in names), record]:
+            destination = staging / source.name
+            source.rename(destination)
+            moved.append((source, destination))
+    except Exception:
+        for source, destination in reversed(moved):
+            destination.rename(source)
+        staging.rmdir()
+        raise
+    try:
+        shutil.rmtree(staging)
+    except OSError as error:
+        raise OSError('Uninstall cleanup incomplete; inspect recoverable staging at ' + str(staging)) from error
+    if record.exists() or any((skills_dir / name).exists() for name in names):
+        raise ValueError('Uninstall readback failed')
+    result['removed_skills'] = len(names)
+    result['removed_files'] = len(expected)
+    return result
 
 
 def main(argv=None):
@@ -263,6 +335,11 @@ def main(argv=None):
     destination.add_argument('--skills-dir', type=Path)
     destination.add_argument('--home', type=Path, help='Hermes only: explicitly selected home')
     installer.add_argument('--acknowledge-limits', action='store_true')
+    remover = commands.add_parser('uninstall', help='Preview receipt-owned removal; --yes applies after integrity checks')
+    removal_target = remover.add_mutually_exclusive_group(required=True)
+    removal_target.add_argument('--skills-dir', type=Path)
+    removal_target.add_argument('--home', type=Path, help='Hermes only: explicitly selected home')
+    remover.add_argument('--yes', action='store_true', help='Confirm removal of the verified installation')
     checker = commands.add_parser('verify', help='Verify generated artifact set/hashes')
     checker.add_argument('--distribution', type=Path, required=True)
     args = parser.parse_args(argv)
@@ -287,6 +364,13 @@ def main(argv=None):
                 raise ValueError('Only the Hermes adapter defines --home; choose --skills-dir explicitly')
             target = args.skills_dir if args.skills_dir is not None else args.home.expanduser() / 'skills'
             result = install(args.distribution, target, acknowledge_limits=args.acknowledge_limits)
+        elif args.action == 'uninstall':
+            target = args.skills_dir if args.skills_dir is not None else args.home.expanduser() / 'skills'
+            if args.home is not None:
+                receipt = json.loads((target / '.pstack-runtime.json').read_text())
+                if receipt.get('runtime') != 'hermes':
+                    raise ValueError('Only the Hermes adapter defines --home; choose --skills-dir explicitly')
+            result = uninstall(target, confirm=args.yes)
         else:
             manifest = verify_distribution(args.distribution)
             result = {'runtime': manifest['runtime'], 'skills': len(manifest['skills']),

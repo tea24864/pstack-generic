@@ -82,6 +82,36 @@ class CoreContract(unittest.TestCase):
             self.assertIn('no independent subagents or cross-judge', arena)
             self.assertIn('same-agent perspectives', arena)
 
+    def test_full_packages_repeat_install_uninstall_with_preserved_unrelated_state(self):
+        import subprocess
+        with tempfile.TemporaryDirectory(prefix='pstack-cycles-', dir=os.environ.get('TMPDIR')) as folder:
+            base = Path(folder)
+            for runtime in ('hermes', 'generic'):
+                output = base / (runtime + ' generated output')
+                home = base / (runtime + ' disposable home')
+                target = home / 'skills'
+                target.mkdir(parents=True)
+                (home / 'config.yaml').write_text('fixture: untouched\n')
+                (target / 'unrelated').mkdir()
+                (target / 'unrelated/SKILL.md').write_text('user skill')
+                def run(*args):
+                    process = subprocess.run([sys.executable, '-I', str(ROOT / 'tools/setup.py'), *map(str, args)], capture_output=True, text=True)
+                    self.assertEqual(process.returncode, 0, process.stderr)
+                    return json.loads(process.stdout)
+                run('build', '--runtime', runtime, '--output', output)
+                manifest = specialize.verify_distribution(output)
+                for cycle in range(2):
+                    receipt = run('install', '--distribution', output, '--skills-dir', target, '--acknowledge-limits')
+                    self.assertEqual(receipt['installed_skills'], 52)
+                    self.assertEqual(receipt['installed_files'], 186)
+                    for row in manifest['files']:
+                        self.assertEqual(specialize.digest((home / row['path']).read_bytes()), row['sha256'])
+                    self.assertTrue(run('uninstall', '--skills-dir', target)['dry_run'])
+                    self.assertEqual(run('uninstall', '--skills-dir', target, '--yes')['removed_skills'], 52)
+                    self.assertEqual({p.name for p in target.iterdir()}, {'unrelated'})
+                    self.assertEqual((home / 'config.yaml').read_text(), 'fixture: untouched\n')
+                    self.assertEqual((target / 'unrelated/SKILL.md').read_text(), 'user skill')
+
     def test_coverage_ledger_accounts_for_every_original_at_canonical_targets(self):
         inv = json.loads((ROOT / 'inventory.json').read_text())
         ledger = json.loads((ROOT / 'provenance/coverage.json').read_text())

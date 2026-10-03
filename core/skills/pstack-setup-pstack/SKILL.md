@@ -33,6 +33,17 @@ Repository paths below are relative to the trusted checkout, not to this install
 7. **Install only the confirmed output.** Run `python3 tools/setup.py install --distribution <new-output-directory> --skills-dir <confirmed-directory>`. A reviewed adapter may document an equivalent explicit home option. Generic installation additionally requires `--acknowledge-limits`. The installer verifies file hashes, refuses name collisions across categories and records the selected runtime/capability profile in `.pstack-runtime.json` within the chosen skills directory. Never force replacement of user edits; stage and review a migration separately.
 8. **Read back.** Confirm every installed artifact matches the generated distribution and that the host discovers/loads representative entrypoints and supporting references. Exercise one relevant workflow in a disposable fixture; loading is not behavior verification. Record unrun capabilities honestly. Recheck live limits during execution because configuration can change after setup.
 
+## Uninstall and disposable retesting
+
+Only remove an installation when explicitly requested or when an install/uninstall test cycle is authorized for a disposable destination. Reading the repository or successfully installing is not removal authority. Stop concurrent writers first.
+
+1. Use the same confirmed destination and run `python3 tools/setup.py uninstall --skills-dir <confirmed-directory>` as a non-destructive preview. A reviewed adapter may support `--home <confirmed-home>`.
+2. Read the exact target, owned names/counts and integrity result. Obtain removal confirmation unless this exact disposable cycle is already authorized, then repeat with `--yes`.
+3. The receipt must include per-file ownership hashes. Missing/edited/added files, extra directories, symlinks and legacy receipts block removal; no force/glob deletion is allowed. Back up and review local changes rather than bypassing refusal.
+4. Verify owned targets and receipt are absent, unrelated skills/settings remain, and refresh the host catalog. Reinstall the same verified distribution for the next disposable test; building into existing output is deliberately refused. Staging failures restore moved targets; cleanup failures retain an explicit remaining staging path and are not success.
+
+Older setup receipts without file hashes and the separate legacy installer require a reviewed backup/migration, not inferred ownership. Do not exercise removal on a real profile merely to test packaging.
+
 ## Separately requested panel policy
 
 Ordinary setup changes no runtime configuration. If the user separately requests panel preferences, propose a positive panel size (default three) and inherited-model strategy unless a verified external runner is already authorized. Inspect only the selected adapter's configuration mapping and the host's current non-secret documented keys. Present exact proposed keys, destination, fan-out/cost impact and unchanged provider/reasoning/global routing; wait for confirmation before writes and read back the exact changed keys afterward.

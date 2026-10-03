@@ -9,7 +9,7 @@
 
 ## Automated checks
 
-The current full verification command passed **73 tests**: 53 source/package/specialization/native-loader/installer checks, 10 orchestration-helper tests and 10 decision-logger tests. Node/Bash syntax checks also passed. Native frontmatter/lint/security validation reported zero errors; advisory findings remain visible in local `reports/validation.json` rather than disabling scanning.
+The current full verification command passed **83 tests**: 63 source/package/specialization/native-loader/installer/uninstaller checks, 10 orchestration-helper tests and 10 decision-logger tests. Node/Bash syntax checks also passed. Native frontmatter/lint/security validation reported zero errors; advisory findings remain visible in local `reports/validation.json` rather than disabling scanning.
 
 Coverage includes:
 
@@ -21,6 +21,8 @@ Coverage includes:
 - Observed-tool detection, ambiguity/unknown refusal, explicit generic acknowledgement, unknown/missing insertion points and symlink/template refusal.
 - Exact artifact integrity, additions/changes, collisions across categories, preserved local edits, partial-copy failure and post-copy injected-file rollback.
 - Runtime/version profile recording, valid native metadata placement and isolated-Python CLI imports.
+- Receipt-owned uninstall: preview by default, confirmed removal, edits/additions/missing files/extra directories/symlinks/malformed or legacy receipt refusal; staging failure restores the installation and cleanup failure reports remaining staging.
+- Two complete install → uninstall cycles for each adapter (52 skills/186 files per install), via isolated CLI calls in disposable paths with spaces; all unrelated fixture skills/configuration preserved.
 - Actual helper/logger behavior: neutral plan checker, live-lane/evidence rejection, read-only Git/index preservation, append/concurrent-write and safety regressions.
 
 Maintainer commands and prerequisites are in [README.md](README.md). The generator refuses local edits/additions to owned generated output. The native-scanned package manifest is an integrity record, not a signature or universal runtime certification.
