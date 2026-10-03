@@ -1,4 +1,4 @@
-# pstack: shared source, runtime-native skills
+# pstack-generic: shared source, runtime-native skills
 
 MIT-licensed engineering workflows adapted from Lauren Tan's pstack 0.15.6 (`cursor/plugins`, revision `23e4138daa01c42d4969f7a5465f82704e64f798`).
 
