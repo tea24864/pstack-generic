@@ -1,0 +1,99 @@
+# Benny-owned example, not a Hermes config.yaml block.
+# Inactive placeholders: setup must validate every required field.
+schema_version: 2
+activation:
+  enabled: false
+  trigger: manual
+  checkpoint_adapter: ""
+  webhook_or_cron_id: ""
+source:
+  transport: github
+  repository: "example-org/example-repo"
+  issue_number: 0
+  triage_identity: "configured-github-login"
+slack:
+  enabled: false
+  source_channel_id: "SOURCE_CHANNEL_ID"
+  operations_channel_id: ""
+  triage_identity_user_id: "TRIAGE_IDENTITY_USER_ID"
+  read_action: "verified-adapter-required"
+  thread_post_action: "verified-adapter-required"
+  file_download_action: ""
+  operations_edit_action: ""
+  optional_bot_token_env: "BENNY_SLACK_BOT_TOKEN"
+  allow_source_root_posts: false
+  allow_worker_slack_writes: false
+repository:
+  url: "https://github.com/example-org/example-repo"
+  default_branch: "main"
+  local_workdir: "approved-absolute-target-repository-path"
+  pull_request_action: "verified-gh-draft-pr-workflow"
+  pull_request_url_format: "https://github.com/{owner}/{repo}/pull/{number}"
+  draft_only: true
+tracker:
+  type: github
+  adapter_skill_name: "github-issues"
+  repository: "example-org/example-repo"
+  same_as_source: true
+  team: ""
+  project: ""
+  labels:
+    bug: "existing-label-required"
+    performance: "existing-label-required"
+    intake: "existing-label-required"
+    needs_repro: "existing-label-required"
+  status: "configured-intake-state"
+  source_link_title: "Source issue report"
+  require_compensation_action: true
+routing:
+  map_path: ".hermes/benny/routing.md"
+  owner_pings_default: false
+  allow_feature_owner_ping: false
+  allow_confirmed_regression_author_ping: false
+control:
+  skill_name: "verified-app-control-skill-required"
+  feature_map_path: ".hermes/benny/feature-map.md"
+  environment: "safe-test-environment-required"
+  artifact_directory: "approved-runtime-scratch-path-outside-repository"
+  artifact_retention_hours: 24
+  require_recording: true
+verdict_markers:
+  bug: "[benny:bug]"
+  performance: "[benny:performance]"
+  other: "[benny:other]"
+  tracker_attribute: "tracker"
+status_text:
+  seen: "Seen"
+  reproducing: "Reproducing"
+  reproduced: "Reproduced"
+  could_not_reproduce: "Could not reproduce"
+  blocked: "Blocked"
+  fixing: "Attempting bounded fix"
+  fix_failed: "Fix did not land"
+  pull_request_opened: "Draft pull request opened"
+budgets:
+  poll_seconds: 45
+  verdict_wait_minutes: 45
+  triage_follow_up_minutes: 10
+  triage_total_minutes: 30
+  repro_minutes: 60
+  rejection_window_minutes: 10
+  fix_minutes: 90
+  operations_follow_up_minutes: 45
+  # Deadlines across approved resumptions, never long sleeps in a cron run.
+execution:
+  model_strategy: inherit-parent
+  reasoning: inherited
+  worker_isolation_verified: false
+  allow_workers: false
+policy:
+  allow_source_comments: false
+  allow_tracker_update: false
+  allow_separate_tracker_create: false
+  allow_compensating_close: false
+  allow_code_edit: false
+  allow_commit_push: false
+  allow_draft_pr: false
+  allow_merge_deploy: false
+  allow_issue_delete: false
+# No credential values. Secure environment provisioning is separate.

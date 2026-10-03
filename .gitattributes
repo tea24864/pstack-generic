@@ -1,0 +1,4 @@
+# Preserve deterministic installation hashes across clone platforms.
+* text=auto eol=lf
+# Pinned upstream source is immutable byte-for-byte provenance.
+upstream/pstack/** -text
