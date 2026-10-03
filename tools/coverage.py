@@ -25,7 +25,7 @@ def main():
         row['source_sha256'] = originals[source]['sha256']
         row['target_sha256'] = hashlib.sha256(target.read_bytes()).hexdigest()
         row['target_bytes'] = target.stat().st_size
-    names = {p.parent.name for p in (ROOT / 'skills').glob('*/SKILL.md')}
+    names = {p.parent.name for p in (ROOT / 'core/skills').glob('*/SKILL.md')}
     if names != {e['name'] for e in inv['skills']}:
         raise ValueError('Namespaced skill coverage differs from source inventory')
     previous['files'] = [rows[r['path']] for r in inv['files']]

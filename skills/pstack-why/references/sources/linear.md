@@ -1,11 +1,5 @@
 # Linear Tickets
 
-## Hermes execution contract
-
-Read the owning skill's `references/hermes-runtime.md` first. This reference is a procedure/prompt, not authority to change state. Use `read_file`, `search_files`, and `terminal` for local read-only evidence. Discover deferred tools with `hermes_tool_search`/`tool_describe` before `tool_call`; use only authenticated read operations actually present. Service names identify conditional evidence categories, not guaranteed tools. Missing access, unsupported searches, retention limits, and incomplete pagination are explicit gaps.
-
-For delegation, the parent supplies this full prompt, repository/session scope, and all evidence needed in `delegate_task` goal/context tasks. Children cannot delegate or ask the user and must not write files or external state. They share the filesystem; read-only is a behavior contract, not enforced sandboxing. Return findings in the tool response. The parent owns subsequent waves; async results arrive after the parent yields, never through transcript polling. Role lenses inherit the parent model, so never claim model diversity from role labels.
-
 ## What this source contains
 
 - Issues describing features, bugs, and their motivation
@@ -19,6 +13,8 @@ For delegation, the parent supplies this full prompt, repository/session scope, 
 Linear is where the product/business context often lives: the "we're doing this because customer X asked" or "this is for the Q3 compliance initiative" layer.
 
 ## How to search it
+
+Discover available deferred capabilities with `tool_describe`/`tool_call` and inspect live schemas. Use only authenticated, authorized integrations actually present. No connector, webhook route, scheduling job, credential or provider is activated by loading this skill. Verify authorized external writes by reading back the exact target.
 
 Use an actually discovered authenticated issue-tracker read connector (Linear is an example, not an assumed MCP). Inspect the schema before invoking it. No connector means a named issue-tracker coverage gap.
 

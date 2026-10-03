@@ -1,15 +1,13 @@
 ---
 name: pstack-no-comments
 description: "Review comments and fix accepted scoped workarounds."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: []
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
+
 # No comments
 
 ## When to Use
@@ -18,13 +16,17 @@ Use for explicit no-comments review or a scoped comment/workaround cleanup reque
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Use only capabilities and credentials actually available in this session. Invoking this workflow does not authorize publication, merges, destructive cleanup, dependency installation, or configuration changes. Preserve the caller's scope and user-owned state.
 
 ## Procedure
 
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
+
 Keep the caller's fence. Use its files or diff; otherwise inspect the current diff and working tree against the discovered base branch (default `main` only when present). Do not sweep unrelated code.
 
-1. Read `references/comment-reviewer.md`. A parent with `delegate_task` may spawn a fresh reviewer using `delegate_task(tasks=[{"goal":"Review comments in the bounded scope; return findings only.","context":"<exact scope, base, reviewer reference contents, read-only/no-write instruction>"}])`. Pass the reviewer rules, not a fictional `subagent_type`. No `model`, `readonly`, `environment`, or `background` arguments. A child cannot delegate or clarify; if unavailable, perform a separate evidence-based pass locally and disclose the missing independent reviewer. Prompt-only read-only instructions are not tool isolation.
+1. Read `references/comment-reviewer.md`. Request a fresh independent reviewer when supported, passing the exact scope, base, full reviewer rules and explicit no-write restriction. The reviewer returns findings only. A leaf performs its assigned work directly and returns questions or next-wave proposals to the coordinator. If unavailable, perform a separate evidence-based pass locally and disclose the missing independent reviewer. Prompt-only read-only instructions are not tool isolation.
+
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
 2. The reviewer proposes comment-only deletions and exact `MUST KILL` refactor targets. The coordinator applies accepted edits. Inspect every finding: reject application-code edits, scope escapes, exception-protected deletions, false reasons, and flags blaming intentional code that stays. Our-code surprises remain actionable reshape flags, not excuses to restore prose. Audit missed scoped lint/TypeScript suppressions. Correctness/safety suppressions require a root-cause fix, not blind suppression deletion that breaks the build. Restore only with a precise exception and scoped proof.
 3. Before accepting thin `IMPORTANT` or `do not remove` kills or keeps, use `pstack-how` or `pstack-why` on the symbol. Ambiguous keeps without exception proof do not qualify. Rerun a rejected report once with its failure named. A second rejection fails this review; report it open. Do not revert unrelated changes.
 4. Fix trivial accepted flags by removing a proven dead path, dropping a parameter, or using the real API. If a fix needs a new shape, use `pstack-architect` once for the accepted set and nearby code, stop at the sketch, then implement separately. The principles on root causes and redesign do not authorize widening scope. Never bolt on symptom guards.
@@ -33,7 +35,7 @@ Keep the caller's fence. Use its files or diff; otherwise inspect the current di
 
 ## Pitfalls
 
-Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another profile.
+Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another user-owned execution environment.
 
 ## Verification
 

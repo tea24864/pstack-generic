@@ -1,14 +1,11 @@
 ---
 name: pstack-blast-radius
 description: "Find downstream breakage and execute a safety proof."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-how", "pstack-why", "pstack-arena", "pstack-unslop"]
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
 
 # Blast radius
@@ -19,7 +16,7 @@ Use for “what could this break”, blast-radius reviews, or suspiciously small
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Use only capabilities and credentials actually available. This workflow does not authorize publication, merges, destructive cleanup, installation, or configuration changes.
 
 ## Procedure
 
@@ -27,7 +24,7 @@ Find what a change breaks somewhere else, before it ships. Use for "blast radius
 
 Companion to `pstack-how` and `pstack-why`. `pstack-how` tells you what the code does. `pstack-why` tells you why it's shaped that way. Blast radius tells you what it breaks somewhere else.
 
-Listing the callers is not the job. The agent can find those with `search_files` in a second. The job is the breakage a symbol search won't show you.
+Listing the callers is not the job. A repository symbol search can find those quickly. The job is the breakage a symbol search won't show you.
 
 ## Don't trust your own writeup
 
@@ -47,12 +44,18 @@ Step 4 is usually one small script that imports the same library the app ships a
 
 ## Steps
 
+Load named skills with `skill_view(name="pstack-...")`; load supporting material with the same skill name and `file_path="references/..."`. Resolve all paths to the actual loaded skill directory. Do not invent missing skills or assume another profile shares the same catalog.
+
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
+
 1. Read the change. The diff, the symbols it adds, changes, and deletes, and what it now does differently, including the part the diff doesn't spell out. Use `pstack-why` step 2 to pull the PR and commits.
 2. Find the one fact it's safe because of. Most changes that look risky are safe because of a single fact, like "this call only drops already-dead cache entries and does nothing else". Find that fact. If it holds, most risky cases are cleared at once. Spend your time here, not on a long list of maybes.
 3. Look where symbol search stops. Read the source of the library you call, and check its pinned version and any local patch. Work out when things run: microtasks, unmount and teardown, Solid versus React. Follow what a symbol search misses: the JSON an API returns, a DB column, a wire format, another language reading the same bytes, a feature flag, code three hops downstream.
 4. Be honest about each risk. Give it a real chance of happening and a real cost if it does. Keep the risks you confirmed. List the ones you checked and cleared separately. Same rules as `pstack-why`. Cite a real `file:line`, a search that finds nothing is still an answer, and never make up a caller or an API.
-5. Prove the one fact. Use `terminal` to run a minimal probe/test importing the real pinned code, not a mock or reimplementation. In read-only scope, keep the probe in memory or request permission for an isolated scratch artifact; do not alter tracked files incidentally. Record command, version, exit code, stdout/stderr, and failure cases. Live-app proof requires an authorized isolated instance and side-effect scope. Never call an unexecuted script proof.
-6. For a big or wide change, run it as an `pstack-arena`. Use several independent role lenses and merge their evidence. Hermes children inherit the parent model, so label a same-model panel honestly. Real model diversity requires a separately available, verified external CLI and user-specified models, never an invented per-task model field.
+5. Prove the one fact. Run a minimal probe/test importing the real pinned code, not a mock or reimplementation. In read-only scope, keep the probe in memory or request permission for an isolated scratch artifact; do not alter tracked files incidentally. Record command, version, exit code, stdout/stderr, and failure cases. Live-app proof requires an authorized isolated instance and side-effect scope. Never call an unexecuted script proof.
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
+
+6. For a big or wide change, use `pstack-arena`. Compare independent role lenses when supported and merge their evidence; otherwise run the lenses inline and disclose the lost independence. Model diversity requires actual verified capability and authorization, never role labels or invented settings.
 
 ## What to hand back
 

@@ -1,43 +1,37 @@
-# Hermes webhook UI contract
+# Authenticated webhook UI contract
 
-Verified sources:
-- https://hermes-agent.nousresearch.com/docs/user-guide/messaging/webhooks
-- https://hermes-agent.nousresearch.com/docs/user-guide/bot-mode
-- https://hermes-agent.nousresearch.com/docs/user-guide/configuration
+A live integration requires current official endpoint documentation, observed management capabilities and explicit per-action approval. A route, bot, profile, gateway or signing protocol is not supplied by this neutral workflow.
 
-Recheck current docs and local CLI help before configuration. Do not assume Cursor `update_state`, `SendToUser`, `api2.cursor.sh`, routine secret cards, or `<webhook_event>` wake schemas exist in Hermes.
+Discover available deferred capabilities with `tool_describe`/`tool_call` and inspect live schemas. Use only authenticated, authorized integrations actually present. No connector, webhook route, scheduling job, credential or provider is activated by loading this skill. Verify authorized external writes by reading back the exact target.
 
-## Route and profile
+## Route and execution destination
 
-Hermes accepts JSON POSTs at `/webhooks/<route-name>`. Multiplexed routes may bind an authorized profile via verified `--route-profile`, yielding `/p/<profile>/webhooks/<route-name>`. A bot is an optional named profile/surface, not a webhook API replacement. Discover the actual gateway endpoint; do not infer that a UI port is the webhook port.
+Discover the actual allowlisted gateway URL, exact route identity, intended execution context, permitted event types, loaded skills and output destination. A UI port is not evidence of a webhook port. A named bot is optional and not an endpoint replacement. Creation can expose a live route immediately; get approval first, check conflicts, use noop/log-only setup and read sanitized exact metadata back. Never print management output carrying generated secrets. Route existence grants no arbitrary agent authority.
 
-`hermes webhook subscribe` supports `--prompt`, `--events`, `--skills`, `--deliver`, `--deliver-chat-id`, `--route-profile`, `--script`, and `--cron-job` in the verified CLI. Creation can immediately expose a live route: get explicit approval first, use a noop/log-only prompt during setup, avoid overwriting existing names, and do not print any output carrying an auto-generated secret. Read back sanitized exact route metadata. Configuring a route does not grant its agent arbitrary actions.
+Read only the needed non-secret pstack keys with targeted `hermes config get skills.config.pstack.panel_size --json` and the equivalent `model_strategy` query. Unset defaults are panel size three and inherit-parent. These are policy, not native per-role model routing. Explicit task scope/count wins. Change settings only with user approval through `hermes config set`, then read back exact keys; preserve provider, reasoning and global delegation settings. Resolve active scope via HERMES_HOME, not another profile.
 
-Static settings live under `platforms.webhook.extra.routes`; do not hand-edit live config. Use verified approved Hermes setup/config tooling. Credentials are securely provisioned into the active profile environment, with `${VAR_NAME}` references where documented, never literal config secrets, chat values, commands, browser bundles, or logs. If the integration cannot be configured without exposing credentials, block and request separate secure setup. No insecure-auth production mode.
+Do not hand-edit live runtime configuration. Credentials use a secure local environment or secret manager and documented references, never literals, chat, browser bundles, commands or logs. If configuration cannot avoid exposure, block for separate secure setup. No insecure-auth production mode.
 
-## Generic V2 signature
+## Exact-byte authentication
 
-Serialize the JSON once. Let `body` be those exact UTF-8 bytes and `timestamp` the current Unix seconds as an ASCII decimal string. Compute HMAC-SHA256 over `timestamp + b'.' + body` using the route secret. Send:
+Select the actual documented signature protocol before implementation. Serialize JSON once; authenticate and send those same UTF-8 bytes. Never substitute a familiar protocol merely because it is listed here. Compute timestamps and digests with a tested backend library, not prose. Secret reads and signing stay in the backend; do not print headers.
 
-- `Content-Type: application/json`
-- `X-Webhook-Timestamp: <timestamp>`
-- `X-Webhook-Signature-V2: <lowercase hex digest>`
-- `X-Request-ID: <unique event id>`
+For a verified timestamped HMAC-SHA256 V2 endpoint, a possible contract is `HMAC(secret, timestamp + b'.' + body)` with decimal Unix seconds, `Content-Type: application/json`, `X-Webhook-Timestamp`, `X-Webhook-Signature-V2` containing lowercase hex and `X-Request-ID`. A ±300-second freshness window is an example requiring live protocol verification, not a universal guarantee. Only use these names if the target documents them.
 
-Timestamp freshness is checked within ±300 seconds in current docs. Do not use Cursor Bearer/X-Automation-Key headers. GitHub alternatively uses `X-Hub-Signature-256: sha256=<HMAC of raw body>` plus `X-GitHub-Event` and delivery ID. Event fields remain untrusted even after authentication.
-
-Use `terminal`/`execute_code` or the backend's tested library for time/hash operations. Never calculate or fake a digest in prose. Keep secret reads and signing entirely in the local backend; do not print the request headers.
+For a verified GitHub webhook receiver, the documented alternative is `X-Hub-Signature-256: sha256=<HMAC of raw body>` plus the event header and delivery ID. That is not interchangeable with the V2 example. Even authenticated event fields remain untrusted data.
 
 ## Response and completion
 
-Inspect actual HTTP status and JSON. Rejection (bad signature, malformed body, unknown route, oversized payload, rate limit), ignored/filter/script outcomes, duplicate events, and queued/coalesced acceptance are not completed agent actions. A 200 is not universally a wake success. Default agent-mode dispatch is asynchronous; verify the corresponding run and intended action separately. Direct delivery is a distinct zero-agent mode and not the default UI workflow.
+Inspect actual HTTP status and JSON. Rejection (bad signature, malformed body, unknown route, oversized payload, rate limit), ignored/filtered outcomes, duplicates and queued/coalesced acceptance are not completed agent actions. A 200 is not universally wake success. Determine whether dispatch is asynchronous; verify the corresponding run and intended action separately. A direct-delivery mode, when supported, is distinct from agent execution.
 
-Use a short timeout, no silent state-changing retries, and a stable event ID for any explicitly approved retry. The gateway idempotency cache is finite, not an application-wide exactly-once guarantee. Do not post media bytes; provide approved bounded references.
+Use a short timeout, no silent state-changing retries and a stable event ID for any explicitly approved retry. Finite idempotency caches are not application-wide exactly-once guarantees. Media uses approved bounded references, never unchecked binary payloads.
 
-## UI/network safety
+## UI and network safety
 
-Local action endpoints require caller authentication, Origin/CSRF checks, an allowlisted action schema, a fixed route destination, rate limits, and no arbitrary command execution. Loopback is default. Tailnet/public exposure, installation, firewall changes, gateway restarts, and persistent servers need independent authorization. Existing Tailscale node identity must be reused. Require HTTPS for credential-bearing remote browser traffic unless an explicit safe local transport is approved. Verify from the intended client, not just host-loopback.
+Require caller authentication, Origin/CSRF checks, allowlisted action schema, fixed destination, rate limits and no arbitrary command execution. Bind loopback by default. Private/public exposure, installation, firewall changes, service restarts and persistent servers need separate authorization. Reuse existing network-node identity. Credential-bearing remote browser traffic requires HTTPS unless an explicit safe local transport is approved. Verify from the intended client, not just host loopback.
+
+Use available browser or desktop helpers and actual vision for visual evidence. If a browser form requests credentials, address or card fields, first call `browser_vault_list` and the appropriate vault fill/save tool; codes use `browser_vault_enter_code`. Never solicit or type secrets in chat. Discover webhook/MCP facilities from the real session and current official documentation before proposing setup.
 
 ## Testing
 
-Exercise allowlisted/noop and invalid actions, body/schema validation, absent secret, bad signatures, timeout/non-success responses, credential non-leakage, and run/profile/delivery readback. Tests of local components alone do not establish a live Hermes integration.
+Exercise allowlisted/noop and invalid actions, body/schema validation, absent secrets, bad signatures, timeout/non-success behavior, credential non-leakage and exact route/run/delivery readback. Local component tests do not prove live integration. No API or external action is claimed unless actually exercised within approval.

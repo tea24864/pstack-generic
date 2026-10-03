@@ -1,14 +1,11 @@
 ---
 name: pstack-figure-it-out
 description: "Design and execute an auditable hypothesis-driven plan."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-poteto-mode", "pstack-architect", "pstack-arena", "pstack-show-me-your-work"]
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
 
 # Figure it out
@@ -19,7 +16,7 @@ Use for an ambitious multi-part change or migration when no narrower playbook fi
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Use only capabilities and credentials actually available. This workflow does not authorize publication, merges, destructive cleanup, installation, or configuration changes.
 
 ## Procedure
 
@@ -27,7 +24,11 @@ When the task matches no playbook, design one. The deliverable before any code i
 
 ## Start
 
-Discover `todo_list` with `tool_describe` and open a task list using `tool_call` (or a concise in-chat checklist if unavailable) whose first item is to read the Principles section of the **pstack-poteto-mode** skill. Then add the phases below as todos.
+Track phases using the deferred `todo_list` tool. Discover its current schema first with `tool_describe` and invoke through `tool_call`; mark only verified outcomes complete and keep at most one task in progress. A local checklist suffices when that capability is absent.
+
+Load named skills with `skill_view(name="pstack-...")`; load supporting material with the same skill name and `file_path="references/..."`. Resolve all paths to the actual loaded skill directory. Do not invent missing skills or assume another profile shares the same catalog.
+
+Open a task list whose first item is to read the Principles section of `pstack-poteto-mode`. Then add the phases below as concrete items.
 
 ## Phase A: Frame
 
@@ -45,12 +46,18 @@ Decompose into atomic, independently-landable units. Sequence riskiest-unknown-f
 
 - Build the verification harness before the work, with the baseline captured from the pre-change state, so the check reads as "old value vs new value".
 - For one-way-door design decisions, run the **pstack-architect** skill (it runs **pstack-arena**). Skip it for mechanical work whose shape is already concrete. A second arena over a settled design is over-engineering (the **pstack-principle-laziness-protocol** principle skill).
-- Decide what fans out. Parallelize only across seams, and give each worker its own worktree or branch created by the parent with `terminal` (the **pstack-principle-separate-before-serializing-shared-state** principle skill). Don't over-fan. Use only `delegate_task` goal/context tasks after schema discovery. Filesystem sharing is real; a branch alone does not isolate concurrent file edits. Children cannot delegate; the parent schedules subsequent waves and verifies every artifact.
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
+
+- Decide what fans out. Parallelize only across seams and give concurrent writers separate working trees or disjoint ownership (the **pstack-principle-separate-before-serializing-shared-state** principle skill). Don't over-fan. A branch alone does not isolate concurrent edits. The coordinator schedules later waves and verifies every artifact. Without independent delegation, execute the same units inline.
 - Write the designed phase list down. That list is what the human reviews.
+
+Native children stop with the parent/session. For separately authorized durable work use supported scheduling or `terminal(background=true, notify=true, persist_on_release=true)` for a real bounded job; never detached child claims or background sleep/poll loops. Discover cron/process tools before use, preserve explicit scope and leave actionable handoff evidence.
 
 Then execute the design only within the authorized edit scope. A playbook or skill invocation grants no permission to ship, merge, delete unrelated work, or alter configuration. Add its steps to the todolist as concrete items, after the Phase C entry and before Phase D. Run each under the Phase C loop discipline, and weave the Phase D log through them, a row as each step lands, rather than saving the whole trail for the end.
 
 ## Phase C: Run the loop
+
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
 
 Each unit is an experiment. State the hypothesis, make the smallest change, measure against the predicate on the real artifact, keep it if it advanced, revert only that unit's own changes if it didn't; preserve user and sibling work.
 Apply the **pstack-principle-sequence-verifiable-units** principle skill, verifying each unit before starting the next instead of batching checks at the end.

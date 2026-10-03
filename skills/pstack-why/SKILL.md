@@ -1,23 +1,12 @@
 ---
 name: pstack-why
 description: "Trace design rationale through cited historical evidence."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-how", "pstack-recall", "pstack-teach"]
-    config:
-      - key: pstack.panel_size
-        description: Default independent panel size; explicit scope wins.
-        default: 3
-        prompt: Default independent panel size
-      - key: pstack.model_strategy
-        description: Policy only; external runners require separate verification.
-        default: inherit-parent
-        prompt: Model strategy (inherit-parent or verified-external)
+  hermes: {"tags": ["pstack", "engineering", "workflow"], "config": [{"key": "pstack.panel_size", "description": "Default independent panel size; explicit scope wins.", "default": 3, "prompt": "Default independent panel size"}, {"key": "pstack.model_strategy", "description": "Policy only; external runners require separate verification.", "default": "inherit-parent", "prompt": "Model strategy (inherit-parent or verified-external)"}]}
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
 
 # Why
@@ -28,7 +17,7 @@ Use for “why this design”, historical tradeoffs, regressions, postmortems, o
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Use only capabilities and credentials actually available. This workflow does not authorize publication, merges, destructive cleanup, installation, or configuration changes.
 
 ## Procedure
 
@@ -36,7 +25,7 @@ Investigate the motivation and intent behind code.
 
 Companion to the `pstack-how` skill. `pstack-how` answers what the code does and how it works. `pstack-why` answers what forces led to its shape.
 
-Delegation uses `delegate_task(tasks=[{"goal": "...", "context": "..."}])` only after discovering its actual schema. Roles are prompt lenses, not per-task models. Optional `skills.config.pstack.*` values are descriptive runtime preferences (default inherit-parent); do not change configuration or pass unsupported `model`, `readonly`, `subagent_type`, `environment`, or `run_in_background` fields. Children share the filesystem and must be explicitly told not to write or ask the user. Flatten later waves through the parent. If delegation is unavailable, execute the same evidence slices inline.
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
 
 ## Operating Posture
 
@@ -59,7 +48,9 @@ Before spawning investigators, anchor the investigation in concrete code. You ne
 
 Build this inline.
 
-Run these read-only command templates via `terminal(command=..., workdir=<repo>)` after substituting observed values. Do not run angle-bracket placeholders.
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
+
+Run these read-only command templates in the observed repository after substituting observed values. Do not run angle-bracket placeholders.
 
 ```bash
 # Blame target lines for last-touch commits
@@ -75,7 +66,7 @@ git log --oneline -20 -- <file>
 git log -1 --format=%B <commit>
 ```
 
-Pull PR bodies and discussion via `terminal` running `gh` for any substantive commits:
+Pull PR bodies and discussion using an available authenticated source-control interface, such as `gh`, for substantive commits:
 
 ```bash
 gh pr view <number> --json title,body,author,createdAt,mergedAt,labels,closingIssuesReferences,comments,reviews
@@ -83,13 +74,15 @@ gh pr view <number> --json title,body,author,createdAt,mergedAt,labels,closingIs
 
 Capture this as seed context (file paths, symbols, commits, PR numbers, linked ticket IDs). Pass it to the investigators.
 
-## Step 3. Spawn Parallel Investigators (default posture)
+## Step 3. Investigate All Available Sources (parallel when supported)
 
-**Default to the full parallel investigation.**
+**Default to full source coverage, parallel when supported and inline otherwise.**
 
 ### Discovery
 
-Before investigators, discover available tools in this session with `hermes_tool_search`; load matching schemas with `tool_describe` and invoke with `tool_call`. Classify actual MCP connectors from their schemas, not a presumed server directory. An installed service skill is not proof of a connected or authenticated service. Use `terminal` for git/gh, `search_files` and `read_file` for local evidence.
+Discover available deferred capabilities with `tool_describe`/`tool_call` and inspect live schemas. Use only authenticated, authorized integrations actually present. No connector, webhook route, scheduling job, credential or provider is activated by loading this skill. Verify authorized external writes by reading back the exact target.
+
+Before investigating, discover authenticated read sources and inspect their actual schemas. Classify connectors from evidence, not a presumed server directory. An installed service skill is not proof of connected or authenticated access. Use git/gh and local source reads for repository evidence.
 
 Map each available MCP to one evidence category:
 
@@ -105,9 +98,9 @@ Source control is the baseline: check git checkout/history and `gh` availability
 
 Aim for a complete **coverage map**, not a minimal one. Document the null, don't skip the search.
 
-Launch all matching investigators in a single message so they run concurrently. Don't ask one agent to cover multiple MCPs.
+Coordinate matching source tasks concurrently when supported; otherwise keep the same per-source boundaries during inline investigation. Do not mix multiple connectors inside one source-evidence task.
 
-Use a `delegate_task` tasks batch with one goal per source and self-contained context. Instruct each investigator to use read operations only, return evidence in its response, not delegate, and not ask the user. Behavioral read-only scope is not sandbox enforcement; shared filesystem and connector side effects still require care.
+Assign one self-contained task per source. Each investigator uses read operations only and returns evidence without writes, nested delegation, or user questions. Read-only scope is behavioral, not sandbox enforcement. If independent delegation is unavailable, execute every source recipe inline and disclose the lost independence.
 
 Each investigator gets:
 1. The base prompt from `references/investigator-prompt.md`
@@ -147,7 +140,7 @@ If your scope assessment suggests a single-commit trivial target where the PR de
 
 ## Step 4. Synthesize
 
-After all source results return to the parent, launch one synthesis child with `delegate_task`, or synthesize inline. It may spot-check using available read tools/connectors, but must not write or delegate.
+After all source results return, delegate one synthesis task when supported or synthesize inline. Spot-check using available read sources, without writes or further delegation.
 
 The synthesizer gets:
 1. The investigator findings, including any null results and any categories skipped with justification
@@ -175,7 +168,7 @@ After the Sources Consulted block, if the user's `pstack-why` question is a prec
 - `references/epistemics.md`. Confidence tiers and phrasing guide. The synthesizer must follow it.
 - `references/investigator-prompt.md`. Base prompt template for investigator subagents.
 - `references/source-playbook.md`. Index pointing at the category playbooks below.
-- `references/sources/*.md`. One self-contained example playbook per category, plus cross-cutting `incident-postmortem.md`. Give an investigator the single file that matches its category and adapt it to the available MCP.
+- `references/sources/*.md`. One self-contained example playbook per category, plus cross-cutting `references/sources/incident-postmortem.md`. Give an investigator the single file that matches its category and adapt it to the available MCP.
 - `references/synthesizer-prompt.md`. Prompt template for the synthesizer subagent, including the output format.
 
 

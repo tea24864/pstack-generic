@@ -1,14 +1,11 @@
 ---
 name: pstack-teach
-description: "Teach code mechanics and motivation at the human’s pace."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
+description: "Teach code mechanics and motivation at the human\u2019s pace."
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-how", "pstack-why", "pstack-unslop"]
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
 
 # Teach
@@ -19,7 +16,7 @@ Use for “teach me this”, “help me understand X”, or explanations of chan
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Use only capabilities and credentials actually available. This workflow does not authorize publication, merges, destructive cleanup, installation, or configuration changes.
 
 ## Procedure
 
@@ -27,11 +24,19 @@ Read `references/hermes-runtime.md` with `skill_view` before executing this work
 
 Teach sits on top of `pstack-how` and `pstack-why`. Get your bearings on what the work is and what it touches, then run `pstack-how` for how it works and `pstack-why` for why it's that way. Those are real skill invocations that do their own digging. Blend what they find into one plain explanation, lead with what matters to the person, and go deeper when they ask. Reword freely for teaching, with one exception. Keep `pstack-why`'s confidence language intact (its hedges are findings, not style).
 
+Load named skills with `skill_view(name="pstack-...")`; load supporting material with the same skill name and `file_path="references/..."`. Resolve all paths to the actual loaded skill directory. Do not invent missing skills or assume another profile shares the same catalog.
+
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
+
 1. Decide the few things they should walk away understanding. Choose them from why they're asking (about to change it, reviewing it, debugging it, new to it) and what they already know, both read from the conversation, not quizzed out of them. Skip what they plainly already know. Put the depth where their question is.
-2. Let `pstack-how` and `pstack-why` do the work, don't redo it. Read the code yourself to get oriented, then run `pstack-how` for how it works and `pstack-why` for why. Load both with `skill_view`. The parent coordinates their evidence waves; children cannot invoke a workflow that needs grandchildren. Combine independent how/why evidence tasks in parent-launched batches, then synthesize only after results return. If delegation is unavailable, perform their procedures inline. This is teaching, not permission to edit the product. Match the size to the question. Run both for a subsystem, maybe one is enough for a small change. Keep `pstack-why` narrow by default since its full sweep is slow. Put the narrowing in the ask itself (a scoped question, git plus a source or two) so `pstack-why` records the skipped categories per its own contract, and widen it only when the reasons are the point.
+2. Let `pstack-how` and `pstack-why` do the work, don't redo it. Read the code to get oriented, then load their full procedures for mechanics and motivation. The coordinator schedules independent evidence slices and synthesizes after results return; without independent delegation, perform both procedures inline. This is teaching, not permission to edit the product. Match size to the question. Run both for a subsystem; maybe one is enough for a small change. Keep `pstack-why` narrow by default since its full sweep is slow. Put narrowing in the question itself (git plus a source or two), record skipped categories under its contract, and widen only when reasons are the point.
 3. Start with a plain definition. Name the thing and say what it is in general terms, the way a senior engineer would say it out loud, with its common name if it has one. Then tie it to the case in front of you ("in X, we use this to ...") and build from there: how it works, the deeper reasons, the edge cases. For each part, explain the idea so it clicks: the problem it solves and how it actually works. Walk through what happens as the person does the thing (opens a long chat, scrolls up) when that is what makes it land. Listing functions and constants is reference, not teaching. Don't print framing labels ("the one idea to hold onto", "the thing to walk away with", "the key insight", "at its core", "TL;DR"). Give the smallest complete answer first, a sentence or two, not a dense paragraph, then stop. Add layers when they ask. Never a wall of text.
 4. Keep it a conversation, not a lecture or a performance. Offer to go deeper or move on, and follow their lead. No quizzes. No pacing theater. Don't print "Pause", don't ask them to say it back, don't announce "the sentence to nail", and don't flag a part as important or hard ("here is the part worth slowing down on", "this is the tricky part", "here is where it gets interesting"). Just say it. When you would pause, stop and let them respond. Running one-shot with no live human, deliver it cleanly and put any offer to go deeper at the end.
-5. Show, don't only tell, and build the picture up diagram by diagram. Open the diff, the code, or the debugger when that is the fastest way to land it. Use `read_file`, `terminal` running git diff, and an actually available debugger to show code. Draw when a picture lands faster than words. For anything with three or more moving parts, do not draw one diagram with all of them at once. Draw a short series instead, where each diagram redraws the last and adds a single part, so the reader watches the system assemble. A single all-at-once diagram, especially one saved for the end, is a reference, not teaching. Concretely, to teach a flow from A to B to C, draw it three times. First A to B. Then redraw and add C. Then redraw and add the return edge or the next piece. Match the medium to the idea, and use both kinds when both help. A mermaid diagram fits a flow or structure where the labels carry the meaning. When the idea is spatial, like layout, overlap, scroll position, or a before and after, discover `image_generate` with `tool_describe` and use `tool_call` if available; otherwise use a labeled text/SVG diagram and disclose the unavailable medium. When image generation is available, use it and draw it marker-on-whiteboard style with a few short labels, since image models garble long text. Generate the picture when supported; do not claim an image exists if no tool produced it. The build-up rule holds for generated images too. A single simple point needs no figure.
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
+
+Discover available deferred capabilities with `tool_describe`/`tool_call` and inspect live schemas. Use only authenticated, authorized integrations actually present. No connector, webhook route, scheduling job, credential or provider is activated by loading this skill. Verify authorized external writes by reading back the exact target.
+
+5. Show, don't only tell, and build the picture up diagram by diagram. Open the diff, the code, or the debugger when that is the fastest way to land it. Use source reads, git diff, and an actually available debugger to show code. Draw when a picture lands faster than words. For anything with three or more moving parts, do not draw one diagram with all of them at once. Draw a short series instead, where each diagram redraws the last and adds a single part, so the reader watches the system assemble. A single all-at-once diagram, especially one saved for the end, is a reference, not teaching. Concretely, to teach a flow from A to B to C, draw it three times. First A to B. Then redraw and add C. Then redraw and add the return edge or the next piece. Match the medium to the idea, and use both kinds when both help. A mermaid diagram fits a flow or structure where the labels carry the meaning. When the idea is spatial, like layout, overlap, scroll position, or a before and after, use an actually available image-generation capability; otherwise use a labeled text/SVG diagram and disclose the unavailable medium. When image generation is available, use it and draw it marker-on-whiteboard style with a few short labels, since image models garble long text. Generate the picture when supported; do not claim an image exists if no tool produced it. The build-up rule holds for generated images too. A single simple point needs no figure.
 
 Write every response through the **pstack-unslop** skill, in plain spoken English, the way you'd explain it to a colleague. Be tight, not terse. Cut filler and hedging, keep the part that makes it click. State the concrete mechanism, not a metaphor, a framing, or a preview of what is coming. This is the target density: "Virtualization runs in two parts, one for rendering and one for loading from disk. When an item scrolls out past the buffer, both its DOM node and its in-memory data are evicted." Normal sentence case, not all-lowercase. No em dashes. Prefer periods over commas. Keep each sentence to one or two commas. If clauses pile up, split them into separate sentences. Give each concept one name and keep it. Avoid mirror sentences ("A without B, or B without A") and tidy closers ("the rest follows", "it all falls out"). The words in these steps are directions to you, not labels to print. Don't echo the structure as headers or stock phrases.
 
@@ -40,7 +45,7 @@ Write every response through the **pstack-unslop** skill, in plain spoken Englis
 
 ## Pitfalls
 
-Do not strip epistemic hedges as filler. Avoid lectures, quizzes, stock framing labels, and all-at-once diagrams. A parent must flatten how/why waves because children cannot delegate.
+Do not strip epistemic hedges as filler. Avoid lectures, quizzes, stock framing labels, and all-at-once diagrams. Coordinate how/why evidence waves within the actual delegation limits.
 
 ## Verification
 

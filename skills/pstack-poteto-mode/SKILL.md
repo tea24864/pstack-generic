@@ -1,24 +1,14 @@
 ---
 name: pstack-poteto-mode
 description: "Work with deliberate design, delegation and verification."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-architect", "pstack-arena", "pstack-swarm", "pstack-interrogate", "pstack-how", "pstack-why", "pstack-show-me-your-work"]
-    config:
-      - key: pstack.panel_size
-        description: Default independent panel size; explicit scope wins.
-        default: 3
-        prompt: Default independent panel size
-      - key: pstack.model_strategy
-        description: Policy only; external runners require separate verification.
-        default: inherit-parent
-        prompt: Model strategy (inherit-parent or verified-external)
+  hermes: {"tags": ["pstack", "engineering", "workflow"], "config": [{"key": "pstack.panel_size", "description": "Default independent panel size; explicit scope wins.", "default": 3, "prompt": "Default independent panel size"}, {"key": "pstack.model_strategy", "description": "Policy only; external runners require separate verification.", "default": "inherit-parent", "prompt": "Model strategy (inherit-parent or verified-external)"}]}
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
+
 # Poteto mode
 
 ## When to Use
@@ -27,7 +17,9 @@ Use when the user opts into poteto style or requests this orchestration/quality 
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Load named skills with `skill_view(name="pstack-...")`; load supporting material with the same skill name and `file_path="references/..."`. Resolve all paths to the actual loaded skill directory. Do not invent missing skills or assume another profile shares the same catalog.
+
+Use only capabilities and credentials actually available in this session. Invoking this workflow does not authorize publication, merges, destructive cleanup, dependency installation, or configuration changes. Preserve the caller's scope and user-owned state.
 
 ## Procedure
 
@@ -35,14 +27,22 @@ This is an opt-in conversation working style, not sticky runtime metadata. Apply
 
 ### Operating sequence
 
-1. Match the task to one of the 23 playbooks below and read that file in full with `skill_view`. Copy its steps into `todo_list` when available, or a local checklist. Keep skipped steps with a concrete reason. For a large bespoke run use `pstack-figure-it-out`; for a standing program use Orchestrate. Do not let a route replace doing the work.
+1. Match the task to one of the 23 playbooks below and read that file in full. Copy its steps into the available task tracker, or a local checklist. Keep skipped steps with a concrete reason. For a large bespoke run use `pstack-figure-it-out`; for a standing program use Orchestrate. A route never replaces doing the work.
+
+Track phases using the deferred `todo_list` tool. Discover its current schema first with `tool_describe` and invoke through `tool_call`; mark only verified outcomes complete and keep at most one task in progress. A local checklist suffices when that capability is absent.
 2. Ground nontrivial systems with `pstack-how`; add `pstack-why` when motivation or history constrains the change. Classify questions before asking. Observable behavior, timing, layout, output and perf belong to evidence or a Prototype, not the operator. A read-only Investigation stays read-only. Ask only for a real preference, product call, missing nonretrievable context, or permission gate.
 3. Name the domain data shape before logic. Use `pstack-architect` for nontrivial boundary-crossing code and at least two structural designs. Use `pstack-arena` for competing artifact synthesis and `pstack-swarm` for coverage partitions. Use `pstack-interrogate` on contested designs. Load the leaf principles you actually apply; name a principle in the report only if it changed a specific choice and you read it this session.
 4. Write a throughput checkpoint before multi-step implementation. Record blocking first steps, independent workstreams, shared mutable state, and the smallest safe decomposition. Keep nonapplicable dimensions with a reason. Give code ownership to a scoped leaf; the parent coordinates any further waves. Fresh tasks get fresh consolidated briefs, not resume chains that lose later directives. A child unable to delegate owns the assigned diff directly and returns it for separate parent review.
-5. Review the real diff yourself. Load `simplify-code` or `requesting-code-review` only when actually available and applicable instead of an external deslop plugin. Load `pstack-no-comments` before review. For browser surfaces use the available browser tools; for native desktop/TUI load `computer-use` if available. For CLI behavior use `terminal`. Reproduce bugs on the same surface first. A tool/access gap is BLOCKED, not verified. Benchmark claims require `pstack-benchmark-checklist` and the actual measurement artifacts.
-6. Write prose with `pstack-unslop`; use `pstack-technical-writing` for docs, RFCs, readmes, PR descriptions and commits. Author repository skills with the available `hermes-agent-skill-authoring` workflow; personal skill changes use `skill_manage` only in the active authorized profile. Never modify another profile or silently install dependencies.
+5. Review the real diff yourself. Use an available code simplification or pre-commit review workflow when applicable. Load `pstack-no-comments` before review. Drive browser, desktop, TUI and CLI surfaces with verified controls matching the consumer's surface. Reproduce bugs there first. An access gap is BLOCKED, not verified. Benchmark claims require `pstack-benchmark-checklist` and actual measurement artifacts.
+
+Use available browser or desktop helpers and actual vision for visual evidence. If a browser form requests credentials, address or card fields, first call `browser_vault_list` and the appropriate vault fill/save tool; codes use `browser_vault_enter_code`. Never solicit or type secrets in chat. Discover webhook/MCP facilities from the real session and current official documentation before proposing setup.
+6. Write prose with `pstack-unslop`; use `pstack-technical-writing` for docs, RFCs, readmes, PR descriptions and commits. Repository skills follow the project's authoring standards. Personal skill edits require explicit authorized destination scope. Never modify another user environment or silently install dependencies.
+
+After approved changes only, use `skill_manage` to patch/create the explicitly selected profile/project skill and read it back. Preserve existing names and local edits; do not edit other profiles or permanent prompts. For repository-authored pstack changes edit core source, regenerate its selected distribution and review the diff before installation.
 7. Verify the promised behavior on the real artifact, not child summaries or compilation alone. Sequence work into checked units. Run Opening a PR only if publication is in scope. Opening a PR never implies Babysit or Shipping. PR status questions select Babysit and declare one-shot check, bounded drive, threads-only, or separately authorized background monitoring. Landing requires Shipping's independent exact-patch verdict and explicit merge grant.
-8. On long or unattended work, keep a decision trail via `pstack-show-me-your-work`, with explicit scope, budget, stop predicate and handoff. Bounded session loops are the default. Persistent processes and cron need separate authorization. On a stop, launch nothing new and preserve a safe checkpoint; never pretend children survive stop/session end.
+8. On long or unattended work, keep a decision trail via `pstack-show-me-your-work`, with explicit scope, budget, stop predicate and handoff. Bounded session loops are the default. Durable work needs separate authorization and a verified lifecycle. On a stop, launch nothing new and preserve a safe checkpoint; inspect actual worker state rather than presuming survival.
+
+Native children stop with the parent/session. For separately authorized durable work use supported scheduling or `terminal(background=true, notify=true, persist_on_release=true)` for a real bounded job; never detached child claims or background sleep/poll loops. Discover cron/process tools before use, preserve explicit scope and leave actionable handoff evidence.
 
 Read `references/poteto-agent.md` for the leaf brief wrapper. It is a prompt reference, not a registered subagent type.
 
@@ -96,13 +96,14 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 - **Encode Lessons in Structure** (**pstack-principle-encode-lessons-in-structure**). You catch yourself writing the same instruction a second time. Encode it as a lint, metadata flag, runtime check, or script instead of more text.
 
 
-## Hermes execution contract
+## Worker execution boundary
 
-Use `delegate_task(tasks=[{"goal": "Produce the assigned artifact", "context": "Standalone brief with scope, exact paths, inputs, acceptance criteria, verification commands, write restrictions, and report format."}])` only when that tool is available to the parent. Discover its current schema first. Do not add Cursor-only arguments. Child conversations are isolated but the filesystem is shared. A read-only instruction is not a sandbox. Give concurrent repository writers separate git worktrees and branches; artifact-only candidates may use separate output directories under the agreed workspace or `$TMPDIR`.
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
 
-Children cannot call `delegate_task` or clarify. The parent coordinates flattened waves and relays dependency results. A child executing this workflow does its assigned leaf work directly, returns evidence and proposed next-wave briefs, and never waits for grandchildren. For asynchronous delegation, results arrive after the parent ends its turn; do not poll child transcripts. Children are bounded and die on stop or session end. Durable work requires separately authorized cron or independent processes, not a claim that a child is persistent.
+Every brief stands alone: scope, exact paths and revisions, inputs, acceptance criteria, verification commands, budget, forbidden actions and report format. A read-only instruction is not a sandbox. Concurrent writers own exclusive worktrees/branches; artifact-only candidates use separate output directories. The coordinator relays dependencies and integrates only completed, checked artifacts.
 
-Delegates use the current parent model or the global delegation pin. Optional `skills.config.pstack.*` runtime policy defaults to `inherit-parent`; it does not create a per-task model argument. Call the default panel independent same-model attempts and disclose its correlated-model limitation. Genuine model diversity requires verified external agent CLI support, explicit user scope, and provider/model selections from currently available options. Do not invent model names or silently substitute providers. See `references/hermes-runtime.md` for the shared policy.
+Do not call repeated same-model attempts model diversity. Genuine diversity needs verified available runners and actual provider/model choices within explicit scope. Record what ran and its correlated-model limitation; never invent models or silently change providers. Budget candidates, judging, synthesis and verification together. When independent execution is absent or exhausted, do assigned work directly, preserve distinct alternatives where required, and disclose lost independence rather than retrying a known exhausted budget.
+
 
 ## Writing the reply
 
@@ -146,19 +147,19 @@ Read the matched file in full. Do not open a PR for read-only or local-only work
 - **Autopilot-full.** A queue of independent PRs run to merged with full autonomy. The parent flattens owner/verification/shipping waves, and no named PR merges without independent current-patch proof and explicit grant ("autopilot this queue", "full autopilot", one-owner-per-PR programs). `references/playbooks/autopilot-full.md`.
 - **Autopilot-stack.** A queue of changes built and verified with full autonomy, delivered as one linear reviewed base-branch stack the operator lands ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it"). `references/playbooks/autopilot-stack.md`.
 - **Session pickup.** Resuming or taking over a prior agent's in-flight work from a user-authorized transcript, prior session handoff, or pushed branch. `references/playbooks/session-pickup.md`.
-- **Pause safely.** Suspending in-flight work cleanly so it can be resumed, on an explicit pause, going offline, a Hermes restart, or imminent context compaction. The complement to Session pickup. Full steps: `references/playbooks/pause-safely.md`.
+- **Pause safely.** Suspending in-flight work cleanly so it can be resumed, on an explicit pause, going offline, a runtime restart, or imminent context compaction. The complement to Session pickup. Full steps: `references/playbooks/pause-safely.md`.
 - **Multi-phase or multi-PR plan.** Work that spans phases or stacked PRs. `references/playbooks/multi-phase-plan.md`.
 - **Worktree and simulator cleanup.** Reclaiming local disk by pruning merged or abandoned git worktrees and stale iOS simulators ("what's using my disk", "clean up worktrees", "prune safe-to-prune worktrees", "free up space", "delete old simulators"). `references/playbooks/worktree-cleanup.md`.
 - **Opening a PR.** Publication mechanics only when publication is explicitly in scope. `references/playbooks/opening-a-pr.md`.
 
 ## Bundled helpers
 
-Read `references/helpers.md` before running a helper. Node plan checking and the portable git audit are supported local helpers. All unexercised Bun watcher/store files are reference-only and unavailable as supported runtime integrations. The original Graphite orchestration store is reference-only, not a Hermes runtime integration.
+Read `references/helpers.md` before running a helper. Node plan checking and the portable git audit are supported local helpers. Unexercised watcher/store sources remain immutable provenance in the repository's `upstream/pstack/` snapshot only; they are not shipped runtime integrations.
 
 
 ## Pitfalls
 
-Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another profile.
+Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another user-owned execution environment.
 
 ## Verification
 

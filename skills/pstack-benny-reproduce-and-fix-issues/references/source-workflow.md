@@ -1,6 +1,6 @@
 # Optional Slack source workflow
 
-This reference applies only after a verified Slack adapter and explicit per-operation write authorization. It is preserved as a source-specific contract, not a claim that Slack tools, cloud triggers, isolated workers, or recordings are built into Hermes. For the GitHub path follow the main native SKILL.md. Read the setup skill integration contract before activating. Missing actions or capabilities mean blocked. No automatic publication or deletion authority.
+This reference applies only after a verified Slack adapter and explicit per-operation write authorization. It is preserved as a source-specific contract, not a claim that Slack tools, cloud triggers, isolated workers, or recordings are built into this workflow. For the GitHub path follow the main native SKILL.md. Read the setup skill integration contract before activating. Missing actions or capabilities mean blocked. No automatic publication or deletion authority.
 
 # Reproduce and fix issues
 
@@ -16,7 +16,7 @@ Load the external Benny configuration supplied by the automation. If the config,
 - The coordinator is the only Slack poster.
 - Delegated analysis workers are read-only and return findings or media notes.
 - A fix-phase code worker may edit only when its environment provably excludes Slack credentials and every Slack write action. Otherwise the coordinator edits.
-- Every child prompt must explicitly forbid `SendSlackMessage`, `PostToSlack`, `chat.postMessage`, and all other Slack writes.
+- Every child prompt explicitly forbids all source-channel, tracker and repository external writes; no posting credentials are supplied.
 - Never give a child a Slack token, posting instructions, source coordinates for posting, or permission to report externally.
 - If a child needs Slack write access to run, do not launch it.
 - Utility bots are evidence sources. They do not own the fix unless a person explicitly delegated the fix to them.
@@ -308,8 +308,12 @@ Watch the configured operations thread for one follow-up window.
 Always call the control adapter's cleanup capability. Keep artifacts only as long as the configured retention policy allows.
 
 
-## Hermes runtime constraints
+## Worker and lifecycle boundaries
 
-Use only `delegate_task(tasks=[{goal, context}])` when available to the parent, with explicit findings-only/no-edit/no-external-write scope in the prompt. No per-child model, readonly, environment, or background parameters are implemented by this port. Prompt restrictions do not prove credential/tool isolation. If isolation is uncertain, perform code edits and all sensitive work in the coordinator. A child cannot redelegate or clarify. Models follow the parent unless a GLOBAL delegation pin is configured; do not mutate it.
+Workers receive bounded self-contained briefs and findings-only/no-edit/no-external-write scope. Prompt restrictions do not prove tool/credential isolation. If isolation is uncertain, the coordinator performs edits and sensitive work. Leaves return questions and proposed next-wave briefs instead of waiting for descendants. Do not alter user-owned model choices.
+
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
+
+Native children stop with the parent/session. For separately authorized durable work use supported scheduling or `terminal(background=true, notify=true, persist_on_release=true)` for a real bounded job; never detached child claims or background sleep/poll loops. Discover cron/process tools before use, preserve explicit scope and leave actionable handoff evidence.
 
 Original long polling, rejection, and follow-up windows are bounded workflow deadlines. Do not sleep beyond actual session/cron limits; return a checkpoint only through separately approved persistence and resume mechanisms, otherwise stop locally. GitHub source comments use repository/issue identity, not invented Slack timestamps. Every external write needs exact-target readback. Any compensating close/cancel needs explicit prior authority; never delete an existing issue or user work.

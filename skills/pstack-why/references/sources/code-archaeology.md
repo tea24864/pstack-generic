@@ -1,11 +1,5 @@
 # Code Archaeology (git + in-repo)
 
-## Hermes execution contract
-
-Read the owning skill's `references/hermes-runtime.md` first. This reference is a procedure/prompt, not authority to change state. Use `read_file`, `search_files`, and `terminal` for local read-only evidence. Discover deferred tools with `hermes_tool_search`/`tool_describe` before `tool_call`; use only authenticated read operations actually present. Service names identify conditional evidence categories, not guaranteed tools. Missing access, unsupported searches, retention limits, and incomplete pagination are explicit gaps.
-
-For delegation, the parent supplies this full prompt, repository/session scope, and all evidence needed in `delegate_task` goal/context tasks. Children cannot delegate or ask the user and must not write files or external state. They share the filesystem; read-only is a behavior contract, not enforced sandboxing. Return findings in the tool response. The parent owns subsequent waves; async results arrive after the parent yields, never through transcript polling. Role lenses inherit the parent model, so never claim model diversity from role labels.
-
 ## What this source contains
 
 - Commit history (messages, dates, authors, diffs)
@@ -21,7 +15,9 @@ The most trustworthy source, tied directly to the code, and the most complete. E
 
 ## How to search it
 
-Check the actual checkout, shallow history, git, and gh authentication. Missing history/auth is a gap. Expand the seed commit list via `terminal(command=..., workdir=<repo>)`; substitute observed values in the command templates below:
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
+
+Check the actual checkout, shallow history, git, and gh authentication. Missing history/auth is a gap. Expand the seed commit list in the observed repository; substitute observed values in the command templates below:
 
 ```bash
 # Full history of the file through renames
@@ -57,7 +53,7 @@ gh pr view <number> --json title,body,author,createdAt,mergedAt,labels,closingIs
 
 Look for out-of-band docs:
 
-Use `search_files` for local text discovery, then `read_file` for each relevant full source:
+Search local text, then read each relevant source fully:
 
 - ADRs: content pattern `architecture.decision`, file glob `*.md`.
 - Nearby notes: pattern `(TODO|FIXME|HACK|XXX|NOTE)` scoped to the target file with context.

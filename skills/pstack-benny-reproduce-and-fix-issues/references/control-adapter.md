@@ -169,6 +169,8 @@ Before enabling the repro automation, run one harmless adapter check:
 Enable repro work only when all nine steps succeed and no source-channel Slack post is involved.
 
 
-## Hermes capability check
+## Control capability check
 
-Load available browser tools or `computer-use` for UI control; do not assume a private `control` plugin. Discover deferred schemas before use. Screenshots alone do not implement screen recording. If any of the seven capabilities, including recording, is absent, remain blocked. Browser forms use vault tools for passwords/payment/2FA, never direct typing or chat. Cleanup is limited to this run-created processes/profiles/disposable test data and approved retention, not arbitrary user data.
+Use a verified browser or desktop driver, not an assumed private control integration. Inspect actual supported capabilities before use. Screenshots do not implement recording. Missing any of the seven capabilities leaves repro blocked. Browser credentials use the approved secure-entry channel, never typing/chat. Cleanup is limited to run-created processes/profiles/data and approved retention.
+
+Use available browser or desktop helpers and actual vision for visual evidence. If a browser form requests credentials, address or card fields, first call `browser_vault_list` and the appropriate vault fill/save tool; codes use `browser_vault_enter_code`. Never solicit or type secrets in chat. Discover webhook/MCP facilities from the real session and current official documentation before proposing setup.

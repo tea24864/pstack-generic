@@ -1,52 +1,53 @@
-# Verification and delivery
+# Verification: setup-time specialization
 
-## Delivered scope
+## Repository deliverable
 
-- 52 installed namespaced Hermes skills: 49 core plus 3 optional Benny workflows, including all 24 engineering principles.
-- All 23 Poteto Mode playbooks adapted.
-- All 160 original files accounted for by `provenance/coverage.json`; unsupported helpers explicitly retained as reference-only.
-- Source: `https://github.com/cursor/plugins`, pstack 0.15.6, revision `23e4138daa01c42d4969f7a5465f82704e64f798`. MIT license and Lauren Tan attribution retained.
+- One runtime-neutral authored core: 52 skills, including 24 principles and all 23 playbooks. Standard frontmatter has scalar-string metadata. Pure principles use no runtime insertion points.
+- Reviewed `hermes` adapter and explicitly limited `generic` baseline; deterministic setup/build/install tooling and ownership-safe regeneration.
+- Reproducible generated Hermes distribution: 52 skills, 186 installable files. The former duplicated runtime manuals and unsupported helper copies are no longer installed.
+- All 160 upstream files remain byte-identical and fully accounted for at canonical targets. MIT copyright and Lauren Tan attribution retained; pinned revision `23e4138daa01c42d4969f7a5465f82704e64f798`, pstack 0.15.6.
 
-## Structural and helper verification
+## Automated checks
 
-The portability follow-up passed 41 automated tests: 22 package/native-loader/installer tests, 9 orchestration-helper tests, and 10 decision-logger tests. Node and Bash syntax checks also passed. New installer regressions cover explicit nondefault homes (including spaces), initializing an empty home, and refusing unscanned additional files. `package-manifest.json` records the reviewed portable artifact hashes; `reports/verification.json` is generated locally and ignored by Git.
+The current full verification command passed **73 tests**: 53 source/package/specialization/native-loader/installer checks, 10 orchestration-helper tests and 10 decision-logger tests. Node/Bash syntax checks also passed. Native frontmatter/lint/security validation reported zero errors; advisory findings remain visible in local `reports/validation.json` rather than disabling scanning.
 
-Native validation finds all 52 entrypoints and 23 playbooks, with zero errors. All 257 installed package files match the freshly validated staged artifacts. Direct installed-catalog inspection and native skill loading also confirmed all 52 names and exact entrypoint bytes under the default profile.
+Coverage includes:
 
-Preexisting skill contents and `config.yaml` match their pre-install hashes. Normal Hermes skill-usage/curator telemetry changed while loading and patching the newly installed suite; this is recorded separately. No dependencies, provider changes, recurring jobs, hooks, webhook routes, or external integrations were activated.
+- Exact core/skill/playbook/license/upstream coverage and scalar metadata.
+- No host API names or machine-local paths in authored core; allowed insertion points only; principles need no runtime map.
+- Rebuilding from core/adaptor facts reproduces every committed Hermes artifact and its distribution manifest byte-for-byte.
+- Generic generation contains no foreign host APIs or unresolved placeholders and discloses its absent capabilities.
+- Native Hermes discovery/loading of all 52 entrypoints, nested playbooks/rubrics, slash invocation and retained panel-policy default/override injection.
+- Observed-tool detection, ambiguity/unknown refusal, explicit generic acknowledgement, unknown/missing insertion points and symlink/template refusal.
+- Exact artifact integrity, additions/changes, collisions across categories, preserved local edits, partial-copy failure and post-copy injected-file rollback.
+- Runtime/version profile recording, valid native metadata placement and isolated-Python CLI imports.
+- Actual helper/logger behavior: neutral plan checker, live-lane/evidence rejection, read-only Git/index preservation, append/concurrent-write and safety regressions.
 
-## Live workflow evidence
+Maintainer commands and prerequisites are in [README.md](README.md). The generator refuses local edits/additions to owned generated output. The native-scanned package manifest is an integrity record, not a signature or universal runtime certification.
 
-Actual isolated Hermes runs used the explicitly selected `openai-codex` / `gpt-6.1-sol`. Raw attempts are retained in `reports/live/`; `reports/live-review.json` distinguishes semantic results from process exit codes.
+## Disposable installation and preserved live state
 
-- Investigation: actual function input/call/output/error trace, including exactly three fetches for three IDs. Source unchanged.
-- Adversarial review: two completed independent same-model reviewers identified the half-open interval bug. The lead independently executed seven cases, proving two failures. No fix was applied; source unchanged. Lack of model-family diversity is disclosed.
-- TDD: regression failed for underscore loss before implementation changed, then both local tests and an independent direct contract probe passed. Only the two authorized fixture source/test files changed.
-- Architecture, independent attempts: initial run timed out. A larger-budget retry produced and read both distinct independent design artifacts, then the independent judge was refused because the one-shot run had used its two-child total budget; final synthesis/checkpoint did not complete before timeout. Neither attempt changed cache.py. These are incomplete results, not passes.
-- Architecture, disclosed inline fallback: completed two distinct designs, judged/synthesized them, specified types and get/set semantics, and stopped for approval. Source unchanged; no independent candidate or judge ran in this attempt. This verifies the serial fallback, not the complete independent-panel pipeline.
+Both full distributions were generated and installed into separate disposable homes with spaces using **isolated stdlib Python (`-I`)**. Each copied all 52 skills/186 files, read back every hash and runtime profile, and preserved preexisting fixture configuration/unrelated skills. These tests required no dependency installation or runtime configuration changes.
 
-The architecture/arena skills now distinguish concurrent-child caps from run-wide child budgets, budget for later synthesis, and explicitly fall back inline after verified exhaustion rather than retrying or changing global settings.
+The previously installed default-profile package's **257 files** still match the pre-refactor snapshot, and the live `config.yaml` hash is unchanged. Repository generation is not a migration of that installation. No other profiles were modified; no providers, credentials, integrations, jobs, hooks or routes were activated.
 
-## Advisory review
+## Live behavioral probes
 
-The native scanner returned safe verdicts with informational/structural findings; it was not disabled. Advisories cover optional agent-document references, illustrative loopback URLs, subprocess use in audited helpers/tests, executable Node/reference-only helper files, and Poteto Mode's file count. Linter/identifier notices include the future generated feature-map README, generated-name placeholders, an ownership label, and ordinary prose containing “head.” These are not unresolved executable Cursor dependencies. See exact findings in `reports/validation.json`.
+`tools/live_specialized.py` supplies generated instruction content and direct reference paths to fresh Hermes CLI sessions using explicitly selected `openai-codex` / `gpt-6.1-sol`, with rules/config injection disabled and only file/shell tools. This deliberately separates instruction behavior from native catalog loading and does not claim independent delegation or another agent product was exercised.
+
+Semantically reviewed tool traces show:
+
+- **Investigation:** actual source reads and executable probes traced input/calls/output/errors, including exactly three fetches for three IDs. Fixture code unchanged; no independent reviewers claimed.
+- **TDD:** the underscore-preservation test was added first, failed with `hello-world` versus `hello_world`, then passed after the regex fix. Both local tests and a separate direct contract probe passed. Only the authorized source/test fixture files changed.
+- **Generic architecture fallback:** the first attempt timed out after producing design artifacts; it remains incomplete. A separately labelled compact retry completed grounding, two structurally distinct designs, rubric comparison, chosen base/grafts/rejections, public types/usage and proposed acceptance cases, stopping at the design checkpoint. Source unchanged; no independent children or cross-judge were claimed or available.
+
+Raw attempts, receipts, hashes and semantic review evidence stay in ignored `reports/specialized-live/`. A later fallback pass does not rewrite the failed attempt as a pass. Prior pre-refactor independent architecture attempts also remained incomplete; the complete independent candidate/judge/synthesis pipeline is **not verified end-to-end** by these probes.
 
 ## Limits
 
-- Same-model delegation is not multi-model diversity.
-- Eighteen Bun/store helper sources remain reference-only; their runtime integrations were not exercised.
-- Live GitHub publishing, shipping, Benny automation, webhooks, MCP/private connectors, scheduled jobs, and external-model runners were not tested or activated.
-- Linux was exercised. Platform metadata is not evidence of live macOS integration testing.
-- Poteto Mode is opt-in conversation behavior, not runtime-enforced persistent state.
-- Full independent architecture candidate/judge/synthesis execution remains unverified end-to-end in one run; individual candidates and the inline completion path have actual evidence.
-
-## Usage and locations
-
-Package: this repository checkout.
-Installed skills: `<selected-Hermes-home>/skills/software-development/pstack-*`.
-
-Install with `python3 tools/manage.py install --home /path/to/hermes-home`. The prior default-profile-only restriction is removed from the portable installer; only the explicitly selected target is written. Local reports and transcripts remain available on the original workstation, but are excluded from version control because they contain machine paths and profile snapshots. Fresh clones generate their own reports.
-
-Start a fresh Hermes session to refresh catalog/slash commands, then invoke `/pstack-poteto-mode <task>` or a focused skill such as `/pstack-how`, `/pstack-architect`, `/pstack-interrogate`, or `/pstack-tdd`.
-
-Nothing was pushed or published. Updates require a reviewed diff and backup; the fresh installer refuses existing names rather than overwriting local edits.
+- `generic` is an acknowledged restricted baseline, not a tested adapter for Cursor, Claude Code, Codex or every Agent-Skills-capable product.
+- Same-model independence is not model diversity. Missing facilities and task-required independence remain explicit blockers, not fabricated tool calls or silently equivalent serial review.
+- Eighteen original Bun/store helper sources remain reference-only. Live GitHub publishing/shipping, Benny automation, webhooks/MCP/private connectors, scheduling and external-model runners were neither tested nor activated.
+- Linux was exercised. Packaging/compatibility metadata does not prove live behavior on other operating systems.
+- Bootstrap requires a trusted source checkout/Python. Setup does not freely rewrite skills, memorize a global map or create absent capabilities.
+- Existing skill collisions require a separate reviewed migration/backup. No live migration, push or publication is part of this repository refactor.

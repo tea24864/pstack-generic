@@ -1,24 +1,14 @@
 ---
 name: pstack-interrogate
 description: "Challenge changes with independent adversarial reviews."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-architect", "pstack-arena", "pstack-poteto-mode"]
-    config:
-      - key: pstack.panel_size
-        description: Default independent panel size; explicit scope wins.
-        default: 3
-        prompt: Default independent panel size
-      - key: pstack.model_strategy
-        description: Policy only; external runners require separate verification.
-        default: inherit-parent
-        prompt: Model strategy (inherit-parent or verified-external)
+  hermes: {"tags": ["pstack", "engineering", "workflow"], "config": [{"key": "pstack.panel_size", "description": "Default independent panel size; explicit scope wins.", "default": 3, "prompt": "Default independent panel size"}, {"key": "pstack.model_strategy", "description": "Policy only; external runners require separate verification.", "default": "inherit-parent", "prompt": "Model strategy (inherit-parent or verified-external)"}]}
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
+
 # Interrogate
 
 ## When to Use
@@ -27,15 +17,19 @@ Use for adversarial review, stress testing a diff, or blind-spot checks. The del
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Load named skills with `skill_view(name="pstack-...")`; load supporting material with the same skill name and `file_path="references/..."`. Resolve all paths to the actual loaded skill directory. Do not invent missing skills or assume another profile shares the same catalog.
+
+Use only capabilities and credentials actually available in this session. Invoking this workflow does not authorize publication, merges, destructive cleanup, dependency installation, or configuration changes. Preserve the caller's scope and user-owned state.
 
 ## Procedure
 
-Spawn independent reviewers to challenge code changes. Every reviewer gets the same intent, prompt, rubric, and code-quality lens. Native reviewers are same-model by default; independence is useful but cannot reproduce genuine model-diversity signal. Disclose that limitation.
+Spawn independent reviewers to challenge code changes. Every reviewer gets the same intent, prompt, rubric, and code-quality lens. Record actual reviewer model policy. Same-model independence is useful but is not model-diversity signal; disclose that limitation when it applies.
 
 The deliverable is a synthesized verdict. Do NOT auto-apply changes.
 
 ## Step 1, Determine Scope
+
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
 
 Identify what to review from context:
 
@@ -58,7 +52,7 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Use three independent reviewers by default, or the user's bounded count. Follow the Hermes execution contract below. Prepare completed immutable review inputs and issue an explicit no-write instruction in each context; that instruction is not a sandbox. Launch `delegate_task(tasks=[{"goal": "Adversarially review the stated changes", "context": "Filled reviewer template, immutable diff/context paths, exact base and head SHAs, no writes, no delegation; return every proven finding with severity, location, evidence."}, {"goal": "Independently review the same changes", "context": "The same filled template, exact input paths/SHAs, and restrictions."}])`, extending to the reviewer count. Do not provide reviewer findings to peers before they finish. If the tool is unavailable, perform the rubric review directly and state that panel coverage was unavailable.
+Use three independent reviewers by default, or the user's bounded count. Follow the worker execution boundary below. Prepare completed immutable review inputs and give each the filled reviewer template, exact diff/context paths, base/head SHAs, no-write restriction and a request for every proven finding with severity, location and evidence. Do not share peer findings before completion. No-write prose is not a sandbox. If independent execution is unavailable, perform the rubric review directly and state that panel coverage was unavailable.
 
 For genuine multi-model review, verify external agent CLI capability and actual available provider/model options, obtain explicit user scope, and record what really ran. A configuration entry alone does not prove runtime support. Never invent model slugs or fallbacks.
 
@@ -123,18 +117,18 @@ Present the verdict in this structure:
 ### Agreement Map
 [Where did reviewers agree, where did they diverge, and what does the pattern of agreement/disagreement tell us?]
 
-## Hermes execution contract
+## Worker execution boundary
 
-Use `delegate_task(tasks=[{"goal": "Produce the assigned artifact", "context": "Standalone brief with scope, exact paths, inputs, acceptance criteria, verification commands, write restrictions, and report format."}])` only when that tool is available to the parent. Discover its current schema first. Do not add Cursor-only arguments. Child conversations are isolated but the filesystem is shared. A read-only instruction is not a sandbox. Give concurrent repository writers separate git worktrees and branches; artifact-only candidates may use separate output directories under the agreed workspace or `$TMPDIR`.
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
 
-Children cannot call `delegate_task` or clarify. The parent coordinates flattened waves and relays dependency results. A child executing this workflow does its assigned leaf work directly, returns evidence and proposed next-wave briefs, and never waits for grandchildren. For asynchronous delegation, results arrive after the parent ends its turn; do not poll child transcripts. Children are bounded and die on stop or session end. Durable work requires separately authorized cron or independent processes, not a claim that a child is persistent.
+Every brief stands alone: scope, exact paths and revisions, inputs, acceptance criteria, verification commands, budget, forbidden actions and report format. A read-only instruction is not a sandbox. Concurrent writers own exclusive worktrees/branches; artifact-only candidates use separate output directories. The coordinator relays dependencies and integrates only completed, checked artifacts.
 
-Delegates use the current parent model or the global delegation pin. Optional `skills.config.pstack.*` runtime policy defaults to `inherit-parent`; it does not create a per-task model argument. Call the default panel independent same-model attempts and disclose its correlated-model limitation. Genuine model diversity requires verified external agent CLI support, explicit user scope, and provider/model selections from currently available options. Do not invent model names or silently substitute providers. See `references/hermes-runtime.md` for the shared policy.
+Do not call repeated same-model attempts model diversity. Genuine diversity needs verified available runners and actual provider/model choices within explicit scope. Record what ran and its correlated-model limitation; never invent models or silently change providers. Budget candidates, judging, synthesis and verification together. When independent execution is absent or exhausted, do assigned work directly, preserve distinct alternatives where required, and disclose lost independence rather than retrying a known exhausted budget.
 
 
 ## Pitfalls
 
-Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another profile.
+Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another user-owned execution environment.
 
 ## Verification
 

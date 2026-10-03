@@ -42,7 +42,7 @@ def main():
     parser.add_argument('--installed', action='store_true', help='Also check the explicitly recorded local installation')
     args = parser.parse_args()
     checks = [
-        ['hermes', '--run-module', 'unittest', 'discover', '-s', str(ROOT / 'tests'), '-p', 'test_port.py', '-v'],
+        ['hermes', '--run-module', 'unittest', 'discover', '-s', str(ROOT / 'tests'), '-p', 'test_*.py', '-v'],
         [sys.executable, '-B', str(ROOT / 'skills/pstack-poteto-mode/scripts/test-helpers.py')],
         [sys.executable, '-B', str(ROOT / 'skills/pstack-show-me-your-work/scripts/test_log.py')],
         ['node', '--check', str(ROOT / 'skills/pstack-poteto-mode/scripts/check-plan.mjs')],

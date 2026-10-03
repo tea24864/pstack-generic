@@ -1,24 +1,14 @@
 ---
 name: pstack-architect
 description: "Design types and boundaries before implementation."
-version: 0.1.0
-author: "Lauren Tan (poteto), tea24864, Hermes Agent"
 license: MIT
-platforms: ["linux", "macos"]
 metadata:
-  hermes:
-    tags: [pstack, engineering, workflow]
-    related_skills: ["pstack-arena", "pstack-how", "pstack-why", "pstack-interrogate"]
-    config:
-      - key: pstack.panel_size
-        description: Default independent panel size; explicit scope wins.
-        default: 3
-        prompt: Default independent panel size
-      - key: pstack.model_strategy
-        description: Policy only; external runners require separate verification.
-        default: inherit-parent
-        prompt: Model strategy (inherit-parent or verified-external)
+  hermes: {"tags": ["pstack", "engineering", "workflow"], "config": [{"key": "pstack.panel_size", "description": "Default independent panel size; explicit scope wins.", "default": 3, "prompt": "Default independent panel size"}, {"key": "pstack.model_strategy", "description": "Policy only; external runners require separate verification.", "default": "inherit-parent", "prompt": "Model strategy (inherit-parent or verified-external)"}]}
+  author: "Lauren Tan (poteto), tea24864"
+  version: "0.2.0"
+  source-revision: "23e4138daa01c42d4969f7a5465f82704e64f798"
 ---
+
 # Architect
 
 ## When to Use
@@ -27,7 +17,9 @@ Use for architecture sketches, nontrivial boundary changes, or "design this". Do
 
 ## Prerequisites
 
-Read `references/hermes-runtime.md` with `skill_view` before executing this workflow. Use only tools and credentials actually available in this session. Invoking this skill does not authorize publication, merges, destructive cleanup, or configuration changes.
+Load named skills with `skill_view(name="pstack-...")`; load supporting material with the same skill name and `file_path="references/..."`. Resolve all paths to the actual loaded skill directory. Do not invent missing skills or assume another profile shares the same catalog.
+
+Use only capabilities and credentials actually available in this session. Invoking this workflow does not authorize publication, merges, destructive cleanup, dependency installation, or configuration changes. Preserve the caller's scope and user-owned state.
 
 ## Procedure
 
@@ -35,7 +27,7 @@ Design before implementing. Sketch types, function signatures, class shapes, and
 
 ## Start
 
-Use the available `todo_list` tool to open a phase checklist, or write a local checklist with one entry per phase before starting.
+Track phases using the deferred `todo_list` tool. Discover its current schema first with `tool_describe` and invoke through `tool_call`; mark only verified outcomes complete and keep at most one task in progress. A local checklist suffices when that capability is absent.
 
 1. Ground
 2. Sketch
@@ -55,7 +47,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **pstack-arena** skill with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt. Each candidate produces a design package shaped per `references/rationale-template.md`.
 
-Use at least two independent candidates. Read the Hermes execution contract below. The default is same-model exploration, not multi-model diversity; external diverse-model runners are opt-in and must be verified and authorized.
+Use at least two independent candidates. Read the worker execution boundary below. The default is same-model exploration, not multi-model diversity; external diverse-model runners are opt-in and must be verified and authorized.
 
 Budget grounding, candidates, synthesis and checkpoint together. For a small fixture use compact designs, not exhaustive supporting reports. If independent children or the cross-judge are unavailable or a verified one-shot child budget is exhausted, apply the arena fallback inline and disclose the loss of independent review; never retry an exhausted budget or leave synthesis unfinished merely because a third child cannot run. Preserve at least two structurally distinct designs.
 
@@ -109,18 +101,18 @@ When you scrap:
 
 The caller's usage is written first and the type sketch derived from it. One file with new types and signatures for small changes. Module map plus type definitions for larger work. The rationale ships alongside, shaped per `references/rationale-template.md`, including the usage sketch and the synthesis decision.
 
-## Hermes execution contract
+## Worker execution boundary
 
-Use `delegate_task(tasks=[{"goal": "Produce the assigned artifact", "context": "Standalone brief with scope, exact paths, inputs, acceptance criteria, verification commands, write restrictions, and report format."}])` only when that tool is available to the parent. Discover its current schema first. Do not add Cursor-only arguments. Child conversations are isolated but the filesystem is shared. A read-only instruction is not a sandbox. Give concurrent repository writers separate git worktrees and branches; artifact-only candidates may use separate output directories under the agreed workspace or `$TMPDIR`.
+Use `delegate_task(tasks=[{"goal":"...","context":"..."}, ...])` for independent children. Each brief includes scope, evidence, exclusive output/worktree, verification and no delegation or user questions. Children share filesystems; read-only prompts are not sandboxes. Native children inherit the parent model or global pin: do not pass model/provider/readonly/background arguments or claim model diversity. Budget candidates, judges and synthesis together; obey confirmed concurrency and one-shot total-child limits. On exhaustion finish permitted lenses inline and label reduced independence, never retry or change global settings. For async delivery, finish independent work and end the turn; do not poll transcripts. Parent verifies returned artifacts and coordinates later waves. If an independent panel is explicitly required and unavailable, mark it blocked rather than substituting silently.
 
-Children cannot call `delegate_task` or clarify. The parent coordinates flattened waves and relays dependency results. A child executing this workflow does its assigned leaf work directly, returns evidence and proposed next-wave briefs, and never waits for grandchildren. For asynchronous delegation, results arrive after the parent ends its turn; do not poll child transcripts. Children are bounded and die on stop or session end. Durable work requires separately authorized cron or independent processes, not a claim that a child is persistent.
+Every brief stands alone: scope, exact paths and revisions, inputs, acceptance criteria, verification commands, budget, forbidden actions and report format. A read-only instruction is not a sandbox. Concurrent writers own exclusive worktrees/branches; artifact-only candidates use separate output directories. The coordinator relays dependencies and integrates only completed, checked artifacts.
 
-Delegates use the current parent model or the global delegation pin. Optional `skills.config.pstack.*` runtime policy defaults to `inherit-parent`; it does not create a per-task model argument. Call the default panel independent same-model attempts and disclose its correlated-model limitation. Genuine model diversity requires verified external agent CLI support, explicit user scope, and provider/model selections from currently available options. Do not invent model names or silently substitute providers. See `references/hermes-runtime.md` for the shared policy.
+Do not call repeated same-model attempts model diversity. Genuine diversity needs verified available runners and actual provider/model choices within explicit scope. Record what ran and its correlated-model limitation; never invent models or silently change providers. Budget candidates, judging, synthesis and verification together. When independent execution is absent or exhausted, do assigned work directly, preserve distinct alternatives where required, and disclose lost independence rather than retrying a known exhausted budget.
 
 
 ## Pitfalls
 
-Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another profile.
+Keep the user's scope and explicit checkpoints. Missing evidence or unavailable dependencies are gaps, not passes. Do not replace a working existing skill or change another user-owned execution environment.
 
 ## Verification
 

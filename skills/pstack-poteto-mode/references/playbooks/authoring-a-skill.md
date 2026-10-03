@@ -2,7 +2,9 @@
 
 **You own the skill's voice.**
 
-1. Use the available `hermes-agent-skill-authoring` workflow for repository files; use `skill_manage` only for authorized active-profile personal skills.
+1. Follow the project's skill-authoring standards for repository files. Personal skills need an explicit authorized destination; never alter another user environment.
+
+After approved changes only, use `skill_manage` to patch/create the explicitly selected profile/project skill and read it back. Preserve existing names and local edits; do not edit other profiles or permanent prompts. For repository-authored pstack changes edit core source, regenerate its selected distribution and review the diff before installation.
 2. Validate the skill: frontmatter has `name` and `description`, referenced files exist, cross-skill links resolve.
 3. Test cases if structural. Skip if subjective.
 4. Run **Opening a PR** only if publication is explicitly in scope; otherwise deliver the verified local artifact.
@@ -12,4 +14,4 @@ When in doubt, delete. Keep only prose that changes a decision. Tell it to do th
 **Reply:** summary of the skill, key design decisions, validation notes.
 
 
-**Hermes boundaries.** Read this skill's `references/hermes-runtime.md`. All child work is leaf-only, with a standalone brief and isolated writable paths; the parent flattens dependent waves. Default delegation is independent same-model work, not model diversity. Publication, merges, configuration, installs, destructive cleanup and durable scheduling require explicit relevant scope. A missing runtime capability is a gap. Use bullets instead of markdown tables on Discord.
+**Permission boundary.** Publication, merges, configuration changes, installs, destructive cleanup and durable scheduling require explicit relevant scope. Missing evidence or capability is a gap, not a pass. Concurrent writers need exclusive ownership; the coordinator relays dependencies. Use bullets instead of Markdown tables where the delivery surface does not support tables.

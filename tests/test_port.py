@@ -50,11 +50,12 @@ class SourceContract(unittest.TestCase):
         manage.verify_artifacts(result)
         self.assertEqual(result['revision'],manage.inventory()['revision'])
 
-    def test_runtime_contract_is_present_and_identical(self):
-        expected=(ROOT/'docs/hermes-runtime.md').read_text()
+    def test_generated_distribution_has_no_shared_runtime_manual(self):
+        self.assertFalse(list((ROOT/'skills').rglob('hermes-runtime.md')))
         for entry in manage.inventory()['skills']:
-            with self.subTest(skill=entry['name']):
-                self.assertEqual((ROOT/'skills'/entry['name']/'references/hermes-runtime.md').read_text(),expected)
+            text=(ROOT/'skills'/entry['name']/'SKILL.md').read_text()
+            self.assertNotIn('{{runtime.',text)
+            self.assertNotIn('references/hermes-runtime.md',text)
 
     def test_offline_audit_preserves_git_index_metadata(self):
         import importlib.util

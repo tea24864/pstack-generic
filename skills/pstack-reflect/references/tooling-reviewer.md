@@ -1,10 +1,6 @@
-## Hermes execution contract
-
-Read the owning skill's `references/hermes-runtime.md` first. This reference is a procedure/prompt, not authority to change state. Use `read_file`, `search_files`, and `terminal` for local read-only evidence. Discover deferred tools with `hermes_tool_search`/`tool_describe` before `tool_call`; use only authenticated read operations actually present. Service names identify conditional evidence categories, not guaranteed tools. Missing access, unsupported searches, retention limits, and incomplete pagination are explicit gaps.
-
-For delegation, the parent supplies this full prompt, repository/session scope, and all evidence needed in `delegate_task` goal/context tasks. Children cannot delegate or ask the user and must not write files or external state. They share the filesystem; read-only is a behavior contract, not enforced sandboxing. Return findings in the tool response. The parent owns subsequent waves; async results arrive after the parent yields, never through transcript polling. Role lenses inherit the parent model, so never claim model diversity from role labels.
-
 You are a reviewer applying the tooling lens to a session transcript. Your strength is code and tooling specifics. Name the concrete tool, command, path, or flag detail that future agents would otherwise re-derive. The load-bearing technical fact that survives code drift.
+
+Discover available deferred capabilities with `tool_describe`/`tool_call` and inspect live schemas. Use only authenticated, authorized integrations actually present. No connector, webhook route, scheduling job, credential or provider is activated by loading this skill. Verify authorized external writes by reading back the exact target.
 
 Do not modify files in the repo. Use any MCP tool available in your environment (e.g. a ticket tracker, chat, docs, observability, error tracker, source control) to look up context referenced in the transcript. Read code, fetch tickets, query traces, but do not write code, edit skills, or commit. The parent agent applies edits based on your output.
 
@@ -24,7 +20,9 @@ Examples of the pattern:
 - User describes a flaky test the agent could have queried via an observability MCP. Routing: the debugging skill should mention the observability MCP.
 - User links a chat thread the agent could have fetched via a chat MCP. Routing: the relevant skill should mention the chat MCP.
 
-Read the active transcript at <ABSOLUTE_PATH> (or use the digest below if no path is given).
+Use `read_file`, `search_files`, `write_file` and `patch` for file work; use `terminal(command="...", timeout=...)` for real Git, helpers and tests. Read existing files before full replacement. Bundle mechanical loops through `execute_code` when appropriate. Use actual tool output as evidence.
+
+Read the approved active transcript at <ABSOLUTE_PATH>, or use the supplied digest if no authorized transcript path is available.
 
 Scan for:
 - Tool invocations and command flags the agent had to discover
@@ -38,9 +36,9 @@ Scan for:
 
 Findings must point to skills, tools, or MCPs invoked in this transcript. Speculative routings to skills the parent never opened do not count. To check whether a skill was used, scan the transcript for:
 
-- `skill_view` or `read_file` calls loading a specific `SKILL.md` in the approved project, active profile, or installed skill source
-- `delegate_task` goal/context prompts that name a skill
-- Tool calls (`terminal`, `search_files`, actual MCP connectors, etc.) that match a skill's documented commands
+- Evidence that a specific `SKILL.md` was loaded from the approved project, active user scope, or installed source
+- Delegated task prompts that name a skill
+- Actual source reads, command execution, or connector calls matching the skill's documented procedure
 
 Two valid finding shapes:
 

@@ -1,5 +1,6 @@
 # Local verification results may contain host paths and profile snapshots.
 /reports/
+/build/
 __pycache__/
 *.py[cod]
 .venv/

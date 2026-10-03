@@ -21,12 +21,7 @@ def inventory():
 
 
 def sync_runtime():
-    contract = (ROOT / 'docs/hermes-runtime.md').read_text()
-    for entry in inventory()['skills']:
-        target = ROOT / 'skills' / entry['name'] / 'references/hermes-runtime.md'
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(contract)
-    return {'runtime_copies': inventory()['skill_count']}
+    raise ValueError('Broad runtime contract synchronization is retired; regenerate from core with tools/setup.py build')
 
 
 def validate(*, native=False):
@@ -59,7 +54,10 @@ def validate(*, native=False):
             assert len(description) <= 60 and description.endswith('.')
         except Exception as ex:
             errors.append({'file': str(md.relative_to(ROOT)), 'rule': 'metadata', 'detail': str(ex)})
-        for section in ('When to Use','Prerequisites','Procedure','Pitfalls','Verification'):
+        sections = ('When to Use','Procedure','Pitfalls','Verification')
+        if not entry['name'].startswith('pstack-principle-'):
+            sections += ('Prerequisites',)
+        for section in sections:
             if not re.search(r'^## ' + re.escape(section) + r'\b',content,re.M):
                 errors.append({'file': str(md.relative_to(ROOT)), 'rule': 'section', 'missing': section})
         for f in sorted(directory.rglob('*')):

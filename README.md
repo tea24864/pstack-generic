@@ -1,95 +1,100 @@
-# pstack for Hermes
+# pstack: shared source, runtime-native skills
 
-A namespaced, MIT-licensed adaptation of Lauren Tan's pstack engineering workflows for Hermes Agent. Upstream snapshot: `cursor/plugins`, revision `23e4138daa01c42d4969f7a5465f82704e64f798`, pstack `0.15.6`.
+MIT-licensed engineering workflows adapted from Lauren Tan's pstack 0.15.6 (`cursor/plugins`, revision `23e4138daa01c42d4969f7a5465f82704e64f798`).
 
-## Package scope
+## Ownership and scope
 
-- 49 core skills and all 23 Poteto Mode playbooks.
-- Three optional Benny issue-triage/reproduction/setup skills. Installing the documents does not activate an automation, schedule a job, or connect a service.
-- Native `pstack-*` names preserve your existing skills. Benny names use `pstack-benny-*`.
-- The original 160-file source snapshot remains under `upstream/pstack/` for comparison and attribution. It is not installed as executable agent instructions.
-- No Hermes source changes, plugin, provider changes, or automatic recurring jobs are required for the core workflows.
+- **Author `core/skills/` only:** 52 standard-format skills, including 24 principles, 23 Poteto Mode playbooks and three optional Benny workflows. Supporting references and executable helpers live beside their authored entrypoints.
+- **Maintain `adapters/`:** short, reviewed runtime facts and localized insertion instructions. No executable templates, credentials, hidden role scheduler or automatic integrations.
+- **Generate `skills/`:** checked-in Hermes output for backwards-compatible installation. Never hand-edit it. Pure principles require no runtime mapping or mandatory orchestration manual.
+- **Keep provenance:** all 160 original files remain byte-identical in `upstream/pstack/`; `provenance/coverage.json` maps every source disposition to canonical core or immutable provenance. Archived watcher/store sources are not installed instructions or supported integrations.
+
+Setup specializes relevant operations once. Installed workflows contain their own native instructions for fresh sessions and isolated workers; they do not depend on a remembered global mapping. Standard packaging does not standardize execution APIs.
+
+## Initial adapters
+
+- **`hermes`:** concrete native file, delegation, skill, history and policy mappings. Native catalog/loading/config injection and helper checks are exercised on Linux. No per-task provider/model selector; same-model independence is not model diversity. Concurrency and run-wide child budgets differ.
+- **`generic`:** an explicitly limited file/shell baseline for another Agent-Skills-capable host. No independent delegates/cross-judge, private history API, per-role model routing, durable work or runtime settings are supplied. This is **not a verified adapter for every named agent product**. Required unavailable capabilities remain blockers.
+- **Unknown runtime:** review a new adapter or explicitly acknowledge the generic baseline. Detection uses actually observed tools, proposes candidates and refuses ambiguous/unknown automatic selection. It is not a capability probe or authorization.
+
+See [docs/specialization-design.md](docs/specialization-design.md) for boundaries and [VERIFICATION.md](VERIFICATION.md) for proofs and gaps.
+
+## Agent-driven setup
+
+Read `core/skills/pstack-setup-pstack/SKILL.md` directly from a trusted checkout. This bootstrap needs no prior skill loader or remembered mapping. It checks live schemas, confirms runtime and destination, generates native skills and verifies installation. A source checkout and Python 3.10+ are explicit prerequisites; an installed bootstrap does not pretend to contain the whole compiler/source repository.
+
+For detection, create a local JSON file containing `{"tool_names": ["actually-observed-tool", "..."]}`; do not use the illustrative names literally. Run:
+
+```bash
+python3 tools/setup.py detect --evidence observed-tools.json
+```
+
+Inspect the proposed adapter against the current host's schemas. Then select explicitly:
+
+```bash
+python3 tools/setup.py build --runtime hermes --output build/hermes-new
+python3 tools/setup.py verify --distribution build/hermes-new
+python3 tools/setup.py install --distribution build/hermes-new --home /confirmed/hermes-home
+```
+
+Add `--runtime-version <observed-version>` to build when known; otherwise the installation profile records an unreported version. `--home` is Hermes-only and writes skills beneath that explicitly selected home. There is no implicit destination.
+
+For an acknowledged generic baseline:
+
+```bash
+python3 tools/setup.py build --runtime generic --output build/generic-new
+python3 tools/setup.py verify --distribution build/generic-new
+python3 tools/setup.py install --distribution build/generic-new \
+  --skills-dir /confirmed/host-skill-directory --acknowledge-limits
+```
+
+Build refuses an existing output directory. Installation checks the exact generated artifact set/hashes, refuses existing skill names across categories, rolls back owned copies on failure and reads back all targets. `.pstack-runtime.json` records selected runtime/version, source/adapter hashes, supported capabilities and limits. Recheck actual capabilities during execution. The manifest is an integrity record, not a cryptographic signature; trust/review the checkout you install.
+
+**Loading, generation and installation never authorize settings changes, credential/provider changes, external writes, dependency installation, hooks or recurring jobs.** Benny and bot-UI integrations remain manual/conditional. Panel-policy changes require separately confirmed documented keys and exact readback; preferences cannot create missing routing or execution capabilities.
+
+### Existing Hermes installer
+
+The old entrypoint still installs the reviewed, generated Hermes distribution using stdlib only:
+
+```bash
+python3 tools/manage.py install --home /confirmed/hermes-home
+```
+
+It retains the `skills/software-development/pstack-*` layout and collision refusal. Its legacy implicit default follows `HERMES_HOME`, then `~/.hermes`; use an explicit home. It does not migrate existing installations or create configuration. Prefer the new setup path for a recorded runtime profile.
 
 ## Use
 
-Start a new Hermes session after installation so the skill catalog and slash-command index refresh. Examples:
+Refresh the host's catalog/session after installation. Hermes examples:
 
 ```text
-/pstack-poteto-mode investigate this defect, reproduce it, then fix and verify
+/pstack-poteto-mode reproduce this defect, fix it and verify
 /pstack-how explain this subsystem with traced evidence
-/pstack-architect design this change with a checkpoint before implementation
-/pstack-interrogate review this diff without applying changes
-/pstack-swarm check every package; one result per package
-/pstack-tdd add a focused failing regression test, then fix this bug
-/pstack-benchmark-checklist assess this measured speedup
+/pstack-architect design this change; stop before implementation
+/pstack-interrogate review without applying changes
+/pstack-tdd demonstrate the regression before fixing it
 ```
 
-Poteto Mode is opt-in conversational behavior, not an always-applied prompt change. Explicit checkpoints, plan-only requests, opt-out, and user permission boundaries remain authoritative. A skill invocation is not authorization to merge, publish, delete data, deploy, or alter configuration.
+Poteto Mode remains opt-in conversational behavior, not an always-applied rule or runtime-enforced state. User scope, checkpoints and permission gates win.
 
-The three Benny workflows and `pstack-make-bot-ui` describe optional integrations. They must first verify the necessary Hermes/GitHub/webhook/MCP facilities. Their setup steps require a separate configuration request and do not run during installation.
+## Maintain and verify
 
-## Compatibility
-
-Read `docs/hermes-runtime.md` for the complete execution contract.
-
-- Cursor `Task` calls become native Hermes delegation. Children share the filesystem, so separate write ownership or worktrees are required.
-- The live delegation schema has no per-task model selection. Independent same-model attempts are supported and labelled as such. Genuine multi-model work requires a separately verified external CLI or independent Hermes process and available model/provider credentials; there is no fictional role scheduler.
-- Model defaults inherit the current session/profile delegation policy. No hardcoded upstream model slugs are silently substituted.
-- Cursor rules, cloud environments, `/loop`, and external Cursor plugins are not requirements. A persistent run or scheduled job needs separate user authorization and supported Hermes machinery.
-- Missing MCP/integration evidence is reported as a gap. Credentials are never requested in chat or embedded in skills.
-- Source helpers that cannot run on the supported runtime are marked reference-only, not presented as working integrations.
-- Target platform support is specified in each skill; the port is exercised on Linux. Linux/macOS gating does not claim that every macOS-specific integration was live-tested.
-
-## Verification and installation
-
-### Install on another machine or profile
-
-Copy or clone this repository to the destination machine. Installation requires Python 3.10+ (stdlib only) and an existing Hermes installation for using the skills. Run from the repository root:
+Edit the neutral core or selected adapter, then run these tested commands from the checkout:
 
 ```bash
-python3 tools/manage.py install --home "$HOME/.hermes"
-```
-
-Select a different agent/profile explicitly with `--home /path/to/that/hermes-home`. Without `--home`, the installer uses `HERMES_HOME` if set, otherwise `~/.hermes`. It writes only `skills/software-development/pstack-*` inside the selected home, never sibling profiles, configuration, credentials, or jobs. An empty selected home can receive the skills without creating configuration. Restart the destination session to refresh its catalog.
-
-`package-manifest.json` contains hashes produced after the maintainer's native Hermes validator/linter/security scan. The installer verifies the exact current file set and every hash before copying, reads back installed bytes, and refuses collisions rather than overwriting local edits. The manifest is an integrity check, not a cryptographic signature: review and trust the repository/revision you install. Local install reports stay untracked. Installation of documents is portable; workflow/platform/tool availability still follows the compatibility limits above.
-
-### Validate and maintain
-
-`tools/manage.py validate` performs a stdlib structural check; `--native` also invokes installed Hermes internals when run in its Python environment. The following tested launcher command runs the native scans and complete package tests without assuming a venv path:
-
-Native tests can run through the verified Hermes Python module launcher:
-
-```text
-terminal(command="hermes --run-module unittest discover -s tests -p test_port.py -v", timeout=120)
-```
-
-Run that command from the package root. The tests use stdlib unittest plus Hermes's own installed modules and dependencies. They cover source/skill/playbook completeness, the native catalog/skill/slash loaders, attribution, installer collision refusal, post-scan changes, profile isolation, and failed-copy rollback.
-
-`tools/live_smoke.py` runs bounded, isolated live Hermes sessions for investigation, design with a checkpoint, adversarial review, and a regression bug fix. It requires explicit provider/model arguments and writes actual JSONL transcripts plus independently checked fixture results. These live tests do not publish or modify production repositories.
-
-See [VERIFICATION.md](VERIFICATION.md) for the delivery summary and `reports/` for coverage, compatibility, static validation, installation, and actual live execution results. `reports/live-review.json` preserves failed architecture attempts separately from the completed inline fallback; a serial pass is not a claim that a full independent panel completed. A successful loader test is not a claim that every external integration or autonomous shipping workflow has been exercised.
-
-Run `python3 -B tools/verify.py` from this directory for package/helper tests (requires the current Hermes launcher, Git, Node.js and Bash). Add `--installed` only to audit the installation recorded in this checkout's local report. Fresh clones do not require any previous machine's reports.
-
-After approved edits, regenerate portable provenance and the manifest:
-
-```bash
-python3 tools/coverage.py
+python3 -B tools/regenerate.py
+python3 -B tools/coverage.py
 hermes --run-module unittest discover -s tests -p test_port.py -k test_full_native_validation -v
-python3 tools/manage.py manifest
+python3 -B tools/manage.py manifest
 python3 -B tools/verify.py
 git diff
 ```
 
-The manifest command consumes the native scan just produced by the focused validation test and refuses files changed since that scan. The full suite then verifies the refreshed manifest. Commit the reviewed skills, updated ledger and manifest together. Never hand-edit hashes to bypass review.
+Regeneration refuses edited/extra generated files and replaces only the owned distribution; it never touches installed skills. Broad runtime-manual synchronization and the old separate authoring/generation scripts are retired. The manifest consumes an actual native scan and refuses stale artifacts. Full verification includes source coverage, runtime leakage, reproducibility, generic generation, native loaders/config injection, tampering, collision/isolation/rollback and real helper execution. Verification needs an existing Hermes launcher, Git, Node and Bash; installation/rendering use stdlib only.
 
-Versioned: skills, scripts/templates/references, tests, tooling, MIT attribution, pinned upstream snapshot, source inventory, `provenance/coverage.json`, and `package-manifest.json`. Ignored: local `reports/`, transcripts, profile snapshots, Python bytecode, environments and credentials. The repository has no remote until one is explicitly configured.
+`tools/live_specialized.py` runs explicitly selected provider/model probes against generated content in disposable fixtures. It skips user rules/config injection and supplies selected files directly, with only file/shell tools. Native catalog loading is a separate proof; these probes do not verify independent delegation or another agent product. Distinct attempt labels preserve failures and retries. See its `--help`; local traces stay ignored.
 
-## Updating
+Commit core, adapters, generated skills, manifests and coverage together. Reports, local transcripts/profile snapshots, environments, credentials, bytecode and `build/` stay ignored. Pin and account for upstream changes; do not copy Cursor instructions over native output. Existing installations require an explicitly reviewed migration and backup, not forced overwrite.
 
-Preserve local edits. Pin a new upstream revision, compare it against `inventory.json` and `provenance/coverage.json`, account for every changed source file, and adapt behavior before installing updates. Do not run a blind replacement or install the upstream Cursor instructions directly over the port. The safe installer intentionally refuses existing names; updates need an explicit reviewed diff and a backup.
+## Attribution
 
-## License and attribution
-
-Original pstack copyright is retained in `LICENSE` and every skill's `references/license.md`. Source author: Lauren Tan (poteto). Hermes adaptation: tea24864 with Hermes Agent. This port is MIT-licensed and is not affiliated with or endorsed by Cursor.
+Original copyright/MIT text remains in `LICENSE` and every skill's `references/license.md`. Source author: Lauren Tan (poteto). Adaptation: tea24864 with Hermes Agent. This project is not affiliated with or endorsed by Cursor. No remote publishing is implied by local repository maintenance.
